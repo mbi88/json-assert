@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-public class TestClass {
+public class JsonAssertTest {
 
     private JsonAssert assertion = new JsonAssert();
 
@@ -251,7 +251,7 @@ public class TestClass {
     }
 
     @Test
-    public void testObjects() {
+    public void testObjectsAssertion() {
         boolean isPassed = false;
         JSONObject expected = new JSONObject("{\"q\": {\"a\":1, \"s\":2}, \"w\":2}");
         JSONObject actual = new JSONObject("{\"q\": {\"a\":1, \"s\":2}}");
@@ -276,11 +276,11 @@ public class TestClass {
     }
 
     @Test
-    public void testArrays() {
+    public void testArraysAssertion() {
         boolean isPassed = false;
         JSONArray expected = new JSONArray("[{\"q\": {\"a\":1, \"s\":2}, \"w\":2}, {\"e\": 3}]");
         JSONArray actual = new JSONArray("[{\"q\": {\"a\":1, \"s\":2}}, {\"e\": 3}]");
-        JSONArray actual2 = new JSONArray("[{\"q\": {\"a\":1, \"s\":2}}, {\"e\": 3}]");
+        JSONArray actual2 = new JSONArray("[{\"q\": {\"a\":1, \"s\":1}}, {\"e\": 3}]");
 
         assertion
                 .ignore(new String[]{"w"})

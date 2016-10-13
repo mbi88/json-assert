@@ -4,12 +4,24 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public enum CompareMode {
 
+    /**
+     *
+     */
     NOT_ORDERED(false, false),
 
+    /**
+     *
+     */
     ORDERED(true, false),
 
-    NOT_ORDERED_EXTEBSIBLE_ARRAY(false, true),
+    /**
+     *
+     */
+    NOT_ORDERED_EXTENSIBLE_ARRAY(false, true),
 
+    /**
+     *
+     */
     ORDERED_EXTENSIBLE_ARRAY(true, true);
 
     private final boolean ordered;
@@ -28,15 +40,15 @@ public enum CompareMode {
         return  this.extensibleArray;
     }
 
-    public static JSONCompareMode getCompareMode(CompareMode mode) {
-        JSONCompareMode compareMode = null;
+    protected static JSONCompareMode getCompareMode(CompareMode mode) {
+        JSONCompareMode jsonCompareMode = null;
 
         if (mode.isOrdered()) {
-            compareMode = JSONCompareMode.STRICT_ORDER;
+            jsonCompareMode = JSONCompareMode.STRICT;
         } else if (!mode.isOrdered()) {
-            compareMode = JSONCompareMode.LENIENT;
+            jsonCompareMode = JSONCompareMode.NON_EXTENSIBLE;
         }
 
-        return compareMode;
+        return jsonCompareMode;
     }
 }

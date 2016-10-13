@@ -1,11 +1,11 @@
 package com.mbi;
 
-public class Assertion implements Assert {
+public class JsonAssert implements Assert {
 
     private CompareMode mode;
     private String[] ignore;
 
-    public Assertion() {
+    public JsonAssert() {
         // Default mode
         mode = CompareMode.NOT_ORDERED;
         // Default fields to ignore
@@ -13,7 +13,7 @@ public class Assertion implements Assert {
     }
 
     public <T, U> void jsonEquals(T expected, U actual) {
-        AssertionBuilder.Builder builder = new AssertionBuilder().newBuilder();
+        AssertBuilder.Builder builder = new AssertBuilder().newBuilder();
 
         builder
                 .setActual(actual)
@@ -21,17 +21,19 @@ public class Assertion implements Assert {
                 .setMode(mode)
                 .setIgnore(ignore)
                 .build();
+
+        // Set default mode, ignore
+        mode = CompareMode.NOT_ORDERED;
+        ignore = new String[]{""};
     }
 
-    public Assertion ignore(String[] ignore) {
+    public JsonAssert ignore(String[] ignore) {
         this.ignore = ignore;
-
         return this;
     }
 
-    public Assertion withMode(CompareMode mode) {
+    public JsonAssert withMode(CompareMode mode) {
         this.mode = mode;
-
         return this;
     }
 }

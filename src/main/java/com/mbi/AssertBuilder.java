@@ -1,10 +1,6 @@
 package com.mbi;
 
-/**
- * Created by mbi on 8/19/16.
- */
-
-class AssertionBuilder {
+class AssertBuilder {
 
     private Object actual;
     private Object expected;
@@ -16,8 +12,8 @@ class AssertionBuilder {
     }
 
     private void construct() {
-        AssertionDirector assertionDirector = new AssertionDirector(this);
-        assertionDirector.doAssertion();
+        AssertDirector assertDirector = new AssertDirector(this);
+        assertDirector.doAssertion();
     }
 
     Object getActual() {
@@ -42,28 +38,28 @@ class AssertionBuilder {
         }
 
         Builder setActual(Object actual) {
-            AssertionBuilder.this.actual = actual;
+            AssertBuilder.this.actual = actual;
             return this;
         }
 
         Builder setExpected(Object expected) {
-            AssertionBuilder.this.expected = expected;
+            AssertBuilder.this.expected = expected;
             return this;
         }
 
         Builder setMode(CompareMode mode) {
-            AssertionBuilder.this.mode = mode;
+            AssertBuilder.this.mode = mode;
             return this;
         }
 
         Builder setIgnore(String[] ignore) {
-            AssertionBuilder.this.ignore = ignore;
+            AssertBuilder.this.ignore = ignore;
             return this;
         }
 
-        AssertionBuilder build() {
+        AssertBuilder build() {
             construct();
-            return AssertionBuilder.this;
+            return AssertBuilder.this;
         }
     }
 }

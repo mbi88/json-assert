@@ -3,27 +3,32 @@ package com.mbi;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/**
- * Created by mbi on 8/18/16.
- */
 class Cutter {
 
     static JSONObject cutFields(JSONObject json, String... fields) {
-        for (String field : fields) {
-            json.remove(field);
+        JSONObject newJson = new JSONObject();
+        for (String key : json.keySet()) {
+            for (String field : fields) {
+                if (!key.equalsIgnoreCase(field))
+                    newJson.put(key, json.get(key));
+            }
         }
 
-        return json;
+        return newJson;
     }
 
     static JSONArray cutFields(JSONArray json, String[] fields) {
         JSONArray result = new JSONArray();
         for (int i = 0; i < json.length(); i++) {
             JSONObject jsonObject = new JSONObject(json.get(i).toString());
-            for (String f : fields) {
-                jsonObject.remove(f);
+            JSONObject newJson = new JSONObject();
+            for (String key : jsonObject.keySet()) {
+                for (String field : fields) {
+                    if (!key.equalsIgnoreCase(field))
+                        newJson.put(key, jsonObject.get(key));
+                }
             }
-            result.put(jsonObject);
+            result.put(newJson);
         }
 
         return result;

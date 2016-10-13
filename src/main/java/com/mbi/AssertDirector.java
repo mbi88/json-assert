@@ -10,17 +10,14 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
-/**
- * Created by mbi on 8/19/16.
- */
-class AssertionDirector {
+class AssertDirector {
 
     private final Object actual;
     private final Object expected;
     private final CompareMode mode;
     private final String[] ignore;
 
-    AssertionDirector(AssertionBuilder builder) {
+    AssertDirector(AssertBuilder builder) {
         this.actual = builder.getActual();
         this.expected = builder.getExpected();
         this.mode = builder.getMode();
@@ -66,9 +63,9 @@ class AssertionDirector {
         } catch (AssertionError e) {
             String message = e.getMessage()
                     .concat("\n\n")
-                    .concat("Was expected: " + expected.toString(4))
+                    .concat("Expected:  " + expected.toString(4))
                     .concat("\n\n")
-                    .concat("But found:    " + actual.toString(4));
+                    .concat("But found: " + actual.toString(4));
 
             throw new AssertionError(message);
         } catch (JSONException e) {
@@ -90,9 +87,9 @@ class AssertionDirector {
         } catch (AssertionError e) {
             String message = e.getMessage()
                     .concat("\n\n")
-                    .concat("Was expected: " + expected.toString(4))
+                    .concat("Expected:  " + expected.toString(4))
                     .concat("\n\n")
-                    .concat("But found:    " + actual.toString(4));
+                    .concat("But found: " + actual.toString(4));
 
             throw new AssertionError(message);
         } catch (JSONException e) {
@@ -149,9 +146,13 @@ class AssertionDirector {
 
         @Override
         public boolean equals(Object obj) {
-            return obj != null
-                    && obj instanceof CustomJSONObject
-                    && ((CustomJSONObject) obj).o.toString().equals(this.o.toString());
+            try {
+                JSONAssert.assertEquals(this.toJSONObject(), new JSONObject(obj.toString()), JSONCompareMode.NON_EXTENSIBLE);
+            } catch (AssertionError error) {
+                return false;
+            }
+
+            return obj instanceof CustomJSONObject;
         }
 
         @Override
