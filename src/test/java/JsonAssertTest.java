@@ -103,10 +103,10 @@ public class JsonAssertTest {
         JSONObject actual = new JSONObject("{\"q\": 1}");
 
         assertion
-                .ignore(new String[]{"w"})
+                .ignore("w")
                 .jsonEquals(expected, actual);
         assertion
-                .ignore(new String[]{"w"})
+                .ignore("w")
                 .jsonEquals(actual, expected);
     }
 
@@ -116,10 +116,10 @@ public class JsonAssertTest {
         JSONArray actual = new JSONArray("[{\"q\": 1}]");
 
         assertion
-                .ignore(new String[]{"w"})
+                .ignore("w")
                 .jsonEquals(expected, actual);
         assertion
-                .ignore(new String[]{"w"})
+                .ignore("w")
                 .jsonEquals(actual, expected);
     }
 
@@ -130,7 +130,7 @@ public class JsonAssertTest {
         JSONObject actual = new JSONObject("{\"q\": 1}");
 
         assertion
-                .ignore(new String[]{"w"})
+                .ignore("w")
                 .jsonEquals(expected, actual);
 
         try {
@@ -151,7 +151,7 @@ public class JsonAssertTest {
         JSONArray actual = new JSONArray("[{\"q\": 1}]");
 
         assertion
-                .ignore(new String[]{"w"})
+                .ignore("w")
                 .jsonEquals(expected, actual);
 
         try {
@@ -184,6 +184,7 @@ public class JsonAssertTest {
         boolean isPassed = false;
         JSONArray expected = new JSONArray("[{\"q\": 1}, {\"w\":2}]");
         JSONArray actual = new JSONArray("[{\"w\":2}, {\"q\": 1}]");
+        JSONArray actual2 = new JSONArray("[{\"q\": 1}, {\"w\":2}, {\"e\": 3}]");
 
         try {
             assertion
@@ -193,6 +194,10 @@ public class JsonAssertTest {
             assertion
                     .withMode(CompareMode.ORDERED)
                     .jsonEquals(actual, expected);
+
+            assertion
+                    .withMode(CompareMode.ORDERED)
+                    .jsonEquals(expected, actual2);
             isPassed = true;
         } catch (AssertionError ae) {
             assertTrue(ae.getMessage().contains("But found"));
@@ -204,8 +209,8 @@ public class JsonAssertTest {
     @Test
     public void testNotOrderedExtensibleArray() {
         boolean isPassed = false;
-        JSONArray expected = new JSONArray("[{\"w\": 2}, {\"q\": 1}]");
-        JSONArray actual = new JSONArray("[{\"q\": 1}, {\"w\":2}, {\"e\": 3}]");
+        JSONArray expected = new JSONArray("[{\"id\": 2, \"name\": \"string\", \"structured\": true}, {\"id\": 1, \"name\": \"string\", \"structured\": true}]");
+        JSONArray actual = new JSONArray("[{\"id\": 1, \"name\": \"string\", \"structured\": true}, {\"id\": 2, \"name\": \"string\", \"structured\": true}, {\"id\": 3, \"name\": \"string\", \"structured\": false}]");
 
         assertion
                 .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
@@ -258,13 +263,13 @@ public class JsonAssertTest {
         JSONObject actual2 = new JSONObject("{\"q\": {\"a\":1, \"s\":1}}");
 
         assertion
-                .ignore(new String[]{"w"})
+                .ignore("w")
                 .withMode(CompareMode.NOT_ORDERED)
                 .jsonEquals(expected, actual);
 
         try {
             assertion
-                    .ignore(new String[]{"w"})
+                    .ignore("w")
                     .withMode(CompareMode.NOT_ORDERED)
                     .jsonEquals(expected, actual2);
             isPassed = true;
@@ -283,13 +288,13 @@ public class JsonAssertTest {
         JSONArray actual2 = new JSONArray("[{\"q\": {\"a\":1, \"s\":1}}, {\"e\": 3}]");
 
         assertion
-                .ignore(new String[]{"w"})
+                .ignore("w")
                 .withMode(CompareMode.NOT_ORDERED)
                 .jsonEquals(expected, actual);
 
         try {
             assertion
-                    .ignore(new String[]{"w"})
+                    .ignore("w")
                     .withMode(CompareMode.NOT_ORDERED)
                     .jsonEquals(expected, actual2);
             isPassed = true;
@@ -299,4 +304,6 @@ public class JsonAssertTest {
 
         assertFalse(isPassed);
     }
+
+    // TODO: 10/13/16 add tests with different actual/expected type
 }

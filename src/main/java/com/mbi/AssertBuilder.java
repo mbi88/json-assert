@@ -52,7 +52,7 @@ class AssertBuilder {
             return this;
         }
 
-        Builder setIgnore(String[] ignore) {
+        Builder setIgnore(String... ignore) {
             AssertBuilder.this.ignore = ignore;
             return this;
         }

@@ -5,6 +5,13 @@ import org.json.JSONObject;
 
 class Cutter {
 
+    /**
+     * Method to return json object without passed fields
+     *
+     * @param json   json with redundant fields
+     * @param fields redundant fields to be removed
+     * @return result json without redundant fields
+     */
     static JSONObject cutFields(JSONObject json, String... fields) {
         JSONObject newJson = new JSONObject();
         for (String key : json.keySet()) {
@@ -17,6 +24,13 @@ class Cutter {
         return newJson;
     }
 
+    /**
+     * Method to return json array without passed fields
+     *
+     * @param json   json with redundant fields
+     * @param fields redundant fields to be removed
+     * @return result json without redundant fields
+     */
     static JSONArray cutFields(JSONArray json, String[] fields) {
         JSONArray result = new JSONArray();
         for (int i = 0; i < json.length(); i++) {

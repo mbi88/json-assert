@@ -12,7 +12,7 @@ public class JsonAssert implements Assert {
         ignore = new String[]{""};
     }
 
-    public <T, U> void jsonEquals(T expected, U actual) {
+    public <T, U> void jsonEquals(T actual, U expected) {
         AssertBuilder.Builder builder = new AssertBuilder().newBuilder();
 
         builder
@@ -27,7 +27,7 @@ public class JsonAssert implements Assert {
         ignore = new String[]{""};
     }
 
-    public JsonAssert ignore(String[] ignore) {
+    public JsonAssert ignore(String... ignore) {
         this.ignore = ignore;
         return this;
     }

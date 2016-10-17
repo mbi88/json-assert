@@ -53,7 +53,15 @@ class AssertDirector {
         }
     }
 
-    private void assertEquals(JSONObject expected, JSONObject actual, CompareMode mode, String[] ignore) {
+    /**
+     * Method to assert two json objects are equal
+     *
+     * @param actual   actual json object
+     * @param expected expected json object
+     * @param mode     compare mode
+     * @param ignore   array of fields to be ignored on assertion
+     */
+    private void assertEquals(JSONObject actual, JSONObject expected, CompareMode mode, String... ignore) {
         actual = Cutter.cutFields(actual, ignore);
         expected = Cutter.cutFields(expected, ignore);
         JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
@@ -73,7 +81,15 @@ class AssertDirector {
         }
     }
 
-    private void assertEquals(JSONArray expected, JSONArray actual, CompareMode mode, String[] ignore) {
+    /**
+     * Method to assert two json arrays are equal
+     *
+     * @param actual   actual json array
+     * @param expected expected json array
+     * @param mode     compare mode
+     * @param ignore   array of fields to be ignored on assertion
+     */
+    private void assertEquals(JSONArray actual, JSONArray expected, CompareMode mode, String... ignore) {
         actual = Cutter.cutFields(actual, ignore);
         expected = Cutter.cutFields(expected, ignore);
         JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
@@ -97,6 +113,12 @@ class AssertDirector {
         }
     }
 
+    /**
+     * Transforms json objects array to json array
+     *
+     * @param jsonObjects json objects array
+     * @return json array
+     */
     private JSONArray objectsToArray(JSONObject[] jsonObjects) {
         JSONArray expectedArray = new JSONArray();
 
@@ -107,6 +129,13 @@ class AssertDirector {
         return expectedArray;
     }
 
+    /**
+     * Returns json array with objects which are included in both arrays
+     *
+     * @param expected expected json array
+     * @param actual   actual json array
+     * @return json array with common objects
+     */
     private JSONArray getEntryArray(JSONArray expected, JSONArray actual) {
         JSONArray newArray = new JSONArray();
         HashSet<CustomJSONObject> actualSet = new LinkedHashSet<>();
@@ -120,6 +149,7 @@ class AssertDirector {
                 }
             }
         }
+
         for (CustomJSONObject o : actualSet) {
             newArray.put(o.toJSONObject());
         }
@@ -127,6 +157,9 @@ class AssertDirector {
         return newArray;
     }
 
+    /**
+     * Need for json objects equality assurance
+     */
     private class CustomJSONObject {
 
         private Object o;
@@ -144,10 +177,21 @@ class AssertDirector {
             return this.o.hashCode();
         }
 
+        /**
+         * Compares two objects via JSONAssert.assertEquals() method. JSONCompareMode.NON_EXTENSIBLE is used by default.
+         * Returns true if no assertion error exception is caught
+         *
+         * @param obj object to be compared
+         * @return comparison result
+         */
         @Override
         public boolean equals(Object obj) {
             try {
-                JSONAssert.assertEquals(this.toJSONObject(), new JSONObject(obj.toString()), JSONCompareMode.NON_EXTENSIBLE);
+                JSONAssert.assertEquals(
+                        this.toJSONObject(),
+                        new JSONObject(obj.toString()),
+                        JSONCompareMode.NON_EXTENSIBLE
+                );
             } catch (AssertionError error) {
                 return false;
             }
