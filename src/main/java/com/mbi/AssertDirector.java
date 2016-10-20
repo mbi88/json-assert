@@ -27,29 +27,34 @@ class AssertDirector {
     void doAssertion() {
         // JSONArray - JSONArray
         if (actual instanceof JSONArray && expected instanceof JSONArray) {
-            assertEquals((JSONArray) expected, (JSONArray) actual, mode, ignore);
+            assertEquals((JSONArray) actual, (JSONArray) expected, mode, ignore);
         }
         // JSONObject - JSONObject
         else if (actual instanceof JSONObject && expected instanceof JSONObject) {
-            assertEquals((JSONObject) expected, (JSONObject) actual, mode, ignore);
+            assertEquals((JSONObject) actual, (JSONObject) expected, mode, ignore);
         }
         // JSONArray - JSONObject[]
         else if (actual instanceof JSONArray && expected instanceof JSONObject[]) {
-            assertEquals(objectsToArray((JSONObject[]) expected), (JSONArray) actual, mode, ignore);
+            assertEquals((JSONArray) actual, objectsToArray((JSONObject[]) expected), mode, ignore);
         }
         // Response - JSONArray
         else if (actual instanceof Response && expected instanceof JSONArray) {
-            assertEquals((JSONArray) expected, new JSONArray(actual.toString()), mode, ignore);
+            assertEquals(new JSONArray(((Response) actual).asString()), (JSONArray) expected, mode, ignore);
         }
         // Response - JSONObject
         else if (actual instanceof Response && expected instanceof JSONObject) {
-            assertEquals((JSONObject) expected, new JSONObject(actual.toString()), mode, ignore);
+            assertEquals(new JSONObject(((Response) actual).asString()), (JSONObject) expected, mode, ignore);
         }
         // Response - JSONObject[]
         else if (actual instanceof Response && expected instanceof JSONObject[]) {
-            assertEquals(objectsToArray((JSONObject[]) expected), new JSONArray(actual.toString()), mode, ignore);
+            assertEquals(new JSONArray(((Response) actual).asString()), objectsToArray((JSONObject[]) expected), mode, ignore);
         } else {
-            throw new IllegalArgumentException("Error arguments passed");
+            throw new IllegalArgumentException(
+                    "Error arguments passed"
+                            .concat("\n")
+                            .concat("actual   : " + actual.getClass().getSimpleName())
+                            .concat("\n")
+                            .concat("expected : " + expected.getClass().getSimpleName()));
         }
     }
 
