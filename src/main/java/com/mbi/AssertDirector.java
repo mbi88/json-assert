@@ -99,12 +99,13 @@ class AssertDirector {
         expected = Cutter.cutFields(expected, ignore);
         JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
 
+        JSONArray actualCommon = new JSONArray();
         if (mode.isExtensibleArray()) {
-            actual = getEntryArray(expected, actual);
+            actualCommon = getEntryArray(expected, actual);
         }
 
         try {
-            JSONAssert.assertEquals(expected, actual, jsonCompareMode);
+            JSONAssert.assertEquals(expected, actualCommon, jsonCompareMode);
         } catch (AssertionError e) {
             String message = e.getMessage()
                     .concat("\n\n")
