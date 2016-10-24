@@ -99,9 +99,11 @@ class AssertDirector {
         expected = Cutter.cutFields(expected, ignore);
         JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
 
-        JSONArray actualCommon = new JSONArray();
+        JSONArray actualCommon;
         if (mode.isExtensibleArray()) {
             actualCommon = getEntryArray(expected, actual);
+        } else {
+            actualCommon = actual;
         }
 
         try {
@@ -158,6 +160,10 @@ class AssertDirector {
 
         for (CustomJSONObject o : actualSet) {
             newArray.put(o.toJSONObject());
+        }
+
+        if (newArray.length() == 0){
+            throw new Error("No common objects in passed arrays!");
         }
 
         return newArray;
