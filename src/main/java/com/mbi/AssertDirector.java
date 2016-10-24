@@ -162,8 +162,14 @@ class AssertDirector {
             newArray.put(o.toJSONObject());
         }
 
-        if (newArray.length() == 0){
-            throw new Error("No common objects in passed arrays!");
+        if (newArray.length() == 0) {
+            throw new Error(
+                    "No common objects in passed arrays!"
+                            .concat("\n\n")
+                            .concat("Expected:  " + expected.toString(4))
+                            .concat("\n\n")
+                            .concat("But found: " + actual.toString(4))
+            );
         }
 
         return newArray;
