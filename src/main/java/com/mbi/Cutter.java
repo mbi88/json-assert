@@ -13,15 +13,11 @@ class Cutter {
      * @return result json without redundant fields
      */
     static JSONObject cutFields(JSONObject json, String... fields) {
-        JSONObject newJson = new JSONObject();
-        for (String key : json.keySet()) {
-            for (String field : fields) {
-                if (!key.equalsIgnoreCase(field))
-                    newJson.put(key, json.get(key));
-            }
+        for (String field : fields) {
+            json.remove(field);
         }
 
-        return newJson;
+        return json;
     }
 
     /**
@@ -35,14 +31,11 @@ class Cutter {
         JSONArray result = new JSONArray();
         for (int i = 0; i < json.length(); i++) {
             JSONObject jsonObject = new JSONObject(json.get(i).toString());
-            JSONObject newJson = new JSONObject();
-            for (String key : jsonObject.keySet()) {
-                for (String field : fields) {
-                    if (!key.equalsIgnoreCase(field))
-                        newJson.put(key, jsonObject.get(key));
-                }
+            for (String field : fields) {
+                jsonObject.remove(field);
             }
-            result.put(newJson);
+
+            result.put(jsonObject);
         }
 
         return result;
