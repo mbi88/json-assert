@@ -7,9 +7,6 @@ import org.testng.annotations.Test;
 import static com.jayway.restassured.RestAssured.get;
 import static org.testng.Assert.assertFalse;
 
-/**
- * Created by mbi on 10/24/16.
- */
 public class JsonAssertArgumentsTest {
 
     private JsonAssert assertion = new JsonAssert();
@@ -283,5 +280,23 @@ public class JsonAssertArgumentsTest {
         }
 
         assertFalse(failed);
+    }
+
+    @Test
+    public void testJsonObjectFieldsNotRemovedAfterIgnore() {
+        JSONObject j = new JSONObject("{\"a\": 1}");
+        assertion
+                .ignore("a")
+                .jsonEquals(j, new JSONObject("{\"a\": 1}"));
+        j.get("a");
+    }
+
+    @Test
+    public void testJsonArraysObjectFieldsNotRemovedAfterIgnore() {
+        JSONArray j = new JSONArray("[{\"a\": 1}, {\"a\": 2}]");
+        assertion
+                .ignore("a")
+                .jsonEquals(j, new JSONArray("[{\"a\": 1}, {\"a\": 2}]"));
+        j.getJSONObject(0).getInt("a");
     }
 }

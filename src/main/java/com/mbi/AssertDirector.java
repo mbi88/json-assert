@@ -67,22 +67,24 @@ class AssertDirector {
      * @param ignore   array of fields to be ignored on assertion
      */
     private void assertEquals(JSONObject actual, JSONObject expected, CompareMode mode, String... ignore) {
-        actual = Cutter.cutFields(actual, ignore);
-        expected = Cutter.cutFields(expected, ignore);
+        // Initialize new expected/actual objects to avoid removing fields from objects while assertion with ignore
+        JSONObject a = Cutter.cutFields(new JSONObject(actual), ignore);
+        JSONObject e = Cutter.cutFields(new JSONObject(expected), ignore);
+
         JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
 
         try {
-            JSONAssert.assertEquals(expected, actual, jsonCompareMode);
-        } catch (AssertionError e) {
-            String message = e.getMessage()
+            JSONAssert.assertEquals(e, a, jsonCompareMode);
+        } catch (AssertionError ae) {
+            String message = ae.getMessage()
                     .concat("\n\n")
                     .concat("Expected:  " + expected.toString(4))
                     .concat("\n\n")
                     .concat("But found: " + actual.toString(4));
 
             throw new AssertionError(message);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException je) {
+            je.printStackTrace();
         }
     }
 
@@ -95,29 +97,31 @@ class AssertDirector {
      * @param ignore   array of fields to be ignored on assertion
      */
     private void assertEquals(JSONArray actual, JSONArray expected, CompareMode mode, String... ignore) {
-        actual = Cutter.cutFields(actual, ignore);
-        expected = Cutter.cutFields(expected, ignore);
+        // Initialize new expected/actual arrays to avoid removing fields from objects while assertion with ignore
+        JSONArray a = Cutter.cutFields(new JSONArray(actual.toString()), ignore);
+        JSONArray e = Cutter.cutFields(new JSONArray(expected.toString()), ignore);
+
         JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
 
         JSONArray actualCommon;
         if (mode.isExtensibleArray()) {
-            actualCommon = getEntryArray(expected, actual);
+            actualCommon = getEntryArray(e, a);
         } else {
-            actualCommon = actual;
+            actualCommon = a;
         }
 
         try {
-            JSONAssert.assertEquals(expected, actualCommon, jsonCompareMode);
-        } catch (AssertionError e) {
-            String message = e.getMessage()
+            JSONAssert.assertEquals(e, actualCommon, jsonCompareMode);
+        } catch (AssertionError ae) {
+            String message = ae.getMessage()
                     .concat("\n\n")
                     .concat("Expected:  " + expected.toString(4))
                     .concat("\n\n")
                     .concat("But found: " + actual.toString(4));
 
             throw new AssertionError(message);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException je) {
+            je.printStackTrace();
         }
     }
 
