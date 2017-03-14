@@ -1,6 +1,7 @@
 package com.mbi;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 class Cutter {
@@ -30,12 +31,18 @@ class Cutter {
     static JSONArray cutFields(JSONArray json, String[] fields) {
         JSONArray result = new JSONArray();
         for (int i = 0; i < json.length(); i++) {
-            JSONObject jsonObject = new JSONObject(json.get(i).toString());
-            for (String field : fields) {
-                jsonObject.remove(field);
-            }
+            // Json array may consist of not json objects (e.g.: [1, 2, 5]).
+            // In this case return original json array
+            try {
+                JSONObject jsonObject = new JSONObject(json.get(i).toString());
+                for (String field : fields) {
+                    jsonObject.remove(field);
+                }
 
-            result.put(jsonObject);
+                result.put(jsonObject);
+            } catch (JSONException je) {
+                return json;
+            }
         }
 
         return result;

@@ -209,8 +209,10 @@ public class JsonAssertTest {
     @Test
     public void testNotOrderedExtensibleArray() {
         boolean isPassed = false;
-        JSONArray expected = new JSONArray("[{\"id\": 2, \"name\": \"string\", \"structured\": true}, {\"id\": 1, \"name\": \"string\", \"structured\": true}]");
-        JSONArray actual = new JSONArray("[{\"id\": 1, \"name\": \"string\", \"structured\": true}, {\"id\": 2, \"name\": \"string\", \"structured\": true}, {\"id\": 3, \"name\": \"string\", \"structured\": false}]");
+        JSONArray expected = new JSONArray(
+                "[{\"id\": 2, \"name\": \"string\", \"structured\": true}, {\"id\": 1, \"name\": \"string\", \"structured\": true}]");
+        JSONArray actual = new JSONArray(
+                "[{\"id\": 1, \"name\": \"string\", \"structured\": true}, {\"id\": 2, \"name\": \"string\", \"structured\": true}, {\"id\": 3, \"name\": \"string\", \"structured\": false}]");
 
         assertion
                 .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
@@ -306,4 +308,28 @@ public class JsonAssertTest {
     }
 
     // TODO: 10/13/16 add tests with different actual/expected type
+
+    @Test
+    public void testArraysNotOfJsonObjects() {
+        JSONArray a1 = new JSONArray("[18,17,16,15,14]");
+        JSONArray a2 = new JSONArray("[18,17,16,15,14]");
+
+        assertion.jsonEquals(a1, a2);
+    }
+
+
+    @Test
+    public void testNotEqualArraysNotOfJsonObjects() {
+        boolean isPassed = false;
+        JSONArray a1 = new JSONArray("[18,17,16,15,14]");
+        JSONArray a2 = new JSONArray("[18,17,16,15,1]");
+
+        try {
+            assertion.jsonEquals(a1, a2);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
 }
