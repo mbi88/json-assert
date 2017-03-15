@@ -11,7 +11,7 @@ class AssertBuilder {
         return this.new Builder();
     }
 
-    private void construct() {
+    private void assertion() {
         AssertDirector assertDirector = new AssertDirector(this);
         assertDirector.doAssertion();
     }
@@ -57,9 +57,8 @@ class AssertBuilder {
             return this;
         }
 
-        AssertBuilder build() {
-            construct();
-            return AssertBuilder.this;
+        void build() {
+            AssertBuilder.this.assertion();
         }
     }
 }

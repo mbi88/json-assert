@@ -6,12 +6,16 @@ public class JsonAssert implements Assert {
     private String[] ignore;
 
     public JsonAssert() {
+        // Set default mode, ignore
+        setDefault();
+    }
+
+    private void setDefault() {
         // Default mode
         mode = CompareMode.NOT_ORDERED;
         // Default fields to ignore
         ignore = new String[]{""};
     }
-
     public <T, U> void jsonEquals(T actual, U expected) {
         AssertBuilder.Builder builder = new AssertBuilder().newBuilder();
 
@@ -23,8 +27,7 @@ public class JsonAssert implements Assert {
                 .build();
 
         // Set default mode, ignore
-        mode = CompareMode.NOT_ORDERED;
-        ignore = new String[]{""};
+        setDefault();
     }
 
     public JsonAssert ignore(String... ignore) {
