@@ -1,5 +1,9 @@
 package com.mbi;
 
+import com.jayway.restassured.response.Response;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 /**
  * Use for jsons comparison.
  * <p>
@@ -66,12 +70,20 @@ interface Assert {
      * <p>
      * Available compare mode list see {@link com.mbi.CompareMode}
      *
-     * @param expected expected object
-     * @param actual   actual object
-     * @param <T>      {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link com.jayway.restassured.response.Response}
-     * @param <U>      {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link org.json.JSONObject}[]
+     * @param actual   actual object {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link com.jayway.restassured.response.Response}
+     * @param expected expected object {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link org.json.JSONObject}[]
      */
-    <T, U> void jsonEquals(T actual, U expected);
+    void jsonEquals(JSONObject actual, JSONObject expected);
+
+    void jsonEquals(JSONArray actual, JSONArray expected);
+
+    void jsonEquals(JSONArray actual, JSONObject[] expected);
+
+    void jsonEquals(Response actual, JSONArray expected);
+
+    void jsonEquals(Response actual, JSONObject expected);
+
+    void jsonEquals(Response actual, JSONObject[] expected);
 
     /**
      * Available compare mode list see {@link com.mbi.CompareMode}

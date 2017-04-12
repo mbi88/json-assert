@@ -168,7 +168,6 @@ public enum CompareMode {
      * @param mode compare mode
      * @return json compare mode
      */
-    // TODO: 10/13/16 refactoring is needed
     protected static JSONCompareMode getCompareMode(CompareMode mode) {
         JSONCompareMode jsonCompareMode = null;
 
