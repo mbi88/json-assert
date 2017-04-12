@@ -68,8 +68,8 @@ class AssertDirector {
      */
     private void assertEquals(JSONObject actual, JSONObject expected, CompareMode mode, String... ignore) {
         // Initialize new expected/actual objects to avoid removing fields from objects while assertion with ignore
-        JSONObject a = Cutter.cutFields(new JSONObject(actual), ignore);
-        JSONObject e = Cutter.cutFields(new JSONObject(expected), ignore);
+        JSONObject a = Cutter.cutFields(new JSONObject(actual.toString()), ignore);
+        JSONObject e = Cutter.cutFields(new JSONObject(expected.toString()), ignore);
 
         JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
 

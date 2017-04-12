@@ -19,6 +19,12 @@ public class JsonAssertTest {
 
         try {
             assertion.jsonEquals(expected, actual);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+
+        try {
             assertion.jsonEquals(actual, expected);
             isPassed = true;
         } catch (AssertionError ae) {
@@ -36,11 +42,18 @@ public class JsonAssertTest {
 
         try {
             assertion.jsonEquals(expected, actual);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+
+        try {
             assertion.jsonEquals(actual, expected);
             isPassed = true;
         } catch (AssertionError ae) {
             assertTrue(ae.getMessage().contains("But found"));
         }
+
 
         assertFalse(isPassed);
     }
@@ -71,6 +84,12 @@ public class JsonAssertTest {
 
         try {
             assertion.jsonEquals(expected, actual);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+
+        try {
             assertion.jsonEquals(actual, expected);
             isPassed = true;
         } catch (AssertionError ae) {
@@ -88,6 +107,12 @@ public class JsonAssertTest {
 
         try {
             assertion.jsonEquals(expected, actual);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+
+        try {
             assertion.jsonEquals(actual, expected);
             isPassed = true;
         } catch (AssertionError ae) {
@@ -190,11 +215,21 @@ public class JsonAssertTest {
             assertion
                     .withMode(CompareMode.ORDERED)
                     .jsonEquals(expected, actual);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
 
+        try {
             assertion
                     .withMode(CompareMode.ORDERED)
                     .jsonEquals(actual, expected);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
 
+        try {
             assertion
                     .withMode(CompareMode.ORDERED)
                     .jsonEquals(expected, actual2);
@@ -216,12 +251,12 @@ public class JsonAssertTest {
 
         assertion
                 .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
-                .jsonEquals(expected, actual);
+                .jsonEquals(actual, expected);
 
         try {
             assertion
                     .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
-                    .jsonEquals(actual, expected);
+                    .jsonEquals(expected, actual);
             isPassed = true;
         } catch (AssertionError ae) {
             assertTrue(ae.getMessage().contains("But found"));
@@ -239,16 +274,21 @@ public class JsonAssertTest {
 
         assertion
                 .withMode(CompareMode.ORDERED_EXTENSIBLE_ARRAY)
-                .jsonEquals(expected, actual);
+                .jsonEquals(actual, expected);
 
         try {
             assertion
                     .withMode(CompareMode.ORDERED_EXTENSIBLE_ARRAY)
                     .jsonEquals(expected2, actual);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
 
+        try {
             assertion
                     .withMode(CompareMode.ORDERED_EXTENSIBLE_ARRAY)
-                    .jsonEquals(actual, expected);
+                    .jsonEquals(expected, actual);
             isPassed = true;
         } catch (AssertionError ae) {
             assertTrue(ae.getMessage().contains("But found"));
