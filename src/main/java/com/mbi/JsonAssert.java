@@ -22,45 +22,63 @@ public class JsonAssert implements Assert {
     }
 
     public void jsonEquals(JSONObject actual, JSONObject expected) {
-        EqualityAsserter asserter = new EqualityAsserter();
-        asserter.assertEquals(actual, expected, mode, ignore);
-        // Set default mode, ignore
-        setDefault();
+        try {
+            EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(actual, expected, mode, ignore);
+        } finally {
+            // Set default mode, ignore
+            setDefault();
+        }
     }
 
     public void jsonEquals(JSONArray actual, JSONArray expected) {
-        EqualityAsserter asserter = new EqualityAsserter();
-        asserter.assertEquals(actual, expected, mode, ignore);
-        // Set default mode, ignore
-        setDefault();
+        try {
+            EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(actual, expected, mode, ignore);
+        } finally {
+            // Set default mode, ignore
+            setDefault();
+        }
     }
 
     public void jsonEquals(JSONArray actual, JSONObject[] expected) {
-        EqualityAsserter asserter = new EqualityAsserter();
-        asserter.assertEquals(actual, asserter.objectsToArray(expected), mode, ignore);
-        // Set default mode, ignore
-        setDefault();
+        try {
+            EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(actual, asserter.objectsToArray(expected), mode, ignore);
+        } finally {
+            // Set default mode, ignore
+            setDefault();
+        }
     }
 
     public void jsonEquals(Response actual, JSONArray expected) {
-        EqualityAsserter asserter = new EqualityAsserter();
-        asserter.assertEquals(new JSONArray(actual.asString()), expected, mode, ignore);
-        // Set default mode, ignore
-        setDefault();
+        try {
+            EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(new JSONArray(actual.asString()), expected, mode, ignore);
+        } finally {
+            // Set default mode, ignore
+            setDefault();
+        }
     }
 
     public void jsonEquals(Response actual, JSONObject expected) {
-        EqualityAsserter asserter = new EqualityAsserter();
-        asserter.assertEquals(new JSONObject(actual.asString()), expected, mode, ignore);
-        // Set default mode, ignore
-        setDefault();
+        try {
+            EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(new JSONObject(actual.asString()), expected, mode, ignore);
+        } finally {
+            // Set default mode, ignore
+            setDefault();
+        }
     }
 
     public void jsonEquals(Response actual, JSONObject[] expected) {
-        EqualityAsserter asserter = new EqualityAsserter();
-        asserter.assertEquals(new JSONArray(actual.asString()), asserter.objectsToArray(expected), mode, ignore);
-        // Set default mode, ignore
-        setDefault();
+        try {
+            EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(new JSONArray(actual.asString()), asserter.objectsToArray(expected), mode, ignore);
+        } finally {
+            // Set default mode, ignore
+            setDefault();
+        }
     }
 
     public JsonAssert ignore(String... ignore) {
