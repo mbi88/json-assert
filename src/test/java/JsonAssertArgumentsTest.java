@@ -1,10 +1,10 @@
-import com.jayway.restassured.response.Response;
 import com.mbi.JsonAssert;
+import io.restassured.response.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 
-import static com.jayway.restassured.RestAssured.get;
+import static io.restassured.RestAssured.get;
 
 public class JsonAssertArgumentsTest {
 

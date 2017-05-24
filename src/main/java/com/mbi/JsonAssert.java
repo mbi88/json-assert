@@ -1,6 +1,6 @@
 package com.mbi;
 
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

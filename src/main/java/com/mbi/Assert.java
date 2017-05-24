@@ -1,6 +1,6 @@
 package com.mbi;
 
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -12,7 +12,7 @@ import org.json.JSONObject;
  * Acceptable actual object:
  * {@link org.json.JSONObject}
  * {@link org.json.JSONArray}
- * {@link com.jayway.restassured.response.Response}
+ * {@link io.restassured.response.Response}
  * <p>
  * Acceptable expected object:
  * {@link org.json.JSONObject}
@@ -51,7 +51,7 @@ import org.json.JSONObject;
  * Sometimes expected json array may not contain all the actual json array objects.
  * Use CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY or CompareMode.ORDERED_EXTENSIBLE_ARRAY.
  * <p>
- * Use a {@link com.jayway.restassured.response.Response} as an "actual" argument.
+ * Use a {@link io.restassured.response.Response} as an "actual" argument.
  * <p>
  * For more usages see src/test/java/JsonAssertTest class
  */
@@ -65,12 +65,12 @@ interface Assert {
      * String[] ignore = new String[]{""};
      * <p>
      * Expects that:
-     * - actual object is instance of: {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link com.jayway.restassured.response.Response}
+     * - actual object is instance of: {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link io.restassured.response.Response}
      * - expected object is instance of: {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link org.json.JSONObject}[]
      * <p>
      * Available compare mode list see {@link com.mbi.CompareMode}
      *
-     * @param actual   actual object {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link com.jayway.restassured.response.Response}
+     * @param actual   actual object {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link io.restassured.response.Response}
      * @param expected expected object {@link org.json.JSONObject}, {@link org.json.JSONArray}, {@link org.json.JSONObject}[]
      */
     void jsonEquals(JSONObject actual, JSONObject expected);
