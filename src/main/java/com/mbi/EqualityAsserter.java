@@ -119,13 +119,22 @@ class EqualityAsserter {
             newArray.put(o.toJSONObject());
         }
 
+        // Throw error if no common objects
         if (newArray.length() == 0) {
+            // Cut response if length > 10000 symbols
+            String actualStr = actual.toString(4).length() > 10000
+                    ? actual.toString(4).substring(0, 10000)
+                    : actual.toString(4);
+            String expectedStr = expected.toString(4).length() > 10000
+                    ? expected.toString(4).substring(0, 10000)
+                    : expected.toString(4);
+
             throw new Error(
                     "No common objects in passed arrays!"
                             .concat("\n\n")
-                            .concat("Expected:  " + expected.toString(4))
+                            .concat("Expected:  " + expectedStr)
                             .concat("\n\n")
-                            .concat("But found: " + actual.toString(4))
+                            .concat("But found: " + actualStr)
             );
         }
 
