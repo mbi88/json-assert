@@ -266,6 +266,26 @@ public class JsonAssertTest {
     }
 
     @Test
+    public void testNoCommonObjects() {
+        boolean passed = false;
+        JSONArray expected = new JSONArray(
+                "[{\"id\": 3, \"name\": \"string\", \"structured\": true}, {\"id\": 2, \"name\": \"string\", \"structured\": true}]");
+        JSONArray actual = new JSONArray(
+                "[{\"id\": 1, \"name\": \"string\", \"structured\": true}, {\"id\": 2, \"name\": \"string\", \"structured\": true}, {\"id\": 3, \"name\": \"string\", \"structured\": false}]");
+
+        try {
+            assertion
+                    .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
+                    .jsonEquals(actual, expected);
+            passed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+
+        assertFalse(passed);
+    }
+
+    @Test
     public void testOrderedExtensibleArray() {
         boolean isPassed = false;
         JSONArray expected = new JSONArray("[{\"q\": 1}, {\"w\": 2}]");

@@ -4,89 +4,241 @@ import io.restassured.response.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class JsonAssert implements Assert {
+import static com.mbi.AssertionUtils.objectsToArray;
 
+/**
+ * Use for json comparison.
+ * <p>
+ * Compares json objects or json arrays if they are equal.
+ * <p>
+ * Acceptable actual object:
+ * {@link org.json.JSONObject}
+ * {@link org.json.JSONArray}
+ * {@link io.restassured.response.Response}
+ * <p>
+ * Acceptable expected object:
+ * {@link org.json.JSONObject}
+ * {@link org.json.JSONArray}
+ * {@link org.json.JSONObject}[]
+ * <p>
+ * By default the comparison is performed on the full objects coincidence and objects shouldn't be sorted in arrays.
+ * To set up a different compare mode see available compare mode list: {@link com.mbi.CompareMode}.
+ * Example. We have following arrays:
+ * actual - [{"id": 2, "name": "string", "structured": true}, {"id": 1, "name": "string", "structured": true}]
+ * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
+ * To check if arrays objects sorting is equal we should use:
+ * JsonAssert assertion = new JsonAssert();
+ * assertion
+ * .withMode(CompareMode.ORDERED)
+ * .jsonEquals(expected, actual);
+ * As the result we catch AssertionError here.
+ * If sorting equality is not necessary use CompareMode.NOT_ORDERED instead.
+ * <p>
+ * Sometimes there is no need to compare all fields in objects, some fields can be ignored. Use
+ * {@link com.mbi.JsonAssert#ignore(String...)} to ignore fields.
+ * Example. We have following arrays:
+ * actual - [{"id": 1, "name": "string", "structured": false}, {"id": 2, "name": "string", "structured": true}]
+ * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
+ * To check if jsons are equal without checking "structured" field we should use:
+ * JsonAssert assertion = new JsonAssert();
+ * assertion
+ * .ignore("structured")
+ * .jsonEquals(expected, actual);
+ * The assertion is passed.
+ * <p>
+ * Sometimes we have an array as an actual result but expected result consists of a group of json objects. In this case
+ * we are able to use JSONObject[] as an expected result:
+ * new JsonAssert().jsonEquals(actualJsonArray, expectedJsonObject1, expectedJsonObject2, expectedJsonObject3);
+ * <p>
+ * Sometimes expected json array may not contain all the actual json array objects.
+ * Use CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY or CompareMode.ORDERED_EXTENSIBLE_ARRAY.
+ * <p>
+ * Use a {@link io.restassured.response.Response} as an "actual" argument.
+ * <p>
+ * For more usages see tests.
+ */
+public final class JsonAssert {
+
+    /**
+     * Compare mode.
+     */
     private CompareMode mode;
+
+    /**
+     * Fields to be ignored on comparison.
+     */
     private String[] ignore;
 
+    /**
+     * Sets default state before usage.
+     */
     public JsonAssert() {
         // Set default mode, ignore
-        setDefault();
+        this.setDefaultState();
     }
 
-    private void setDefault() {
+    /**
+     * Sets default state after every comparing. Every new comparison starts from scratch: previous compare mode and
+     * ignore should be reinstalled.
+     */
+    private void setDefaultState() {
         // Default mode
-        mode = CompareMode.NOT_ORDERED;
+        this.mode = CompareMode.NOT_ORDERED;
         // Default fields to ignore
-        ignore = new String[]{""};
+        this.ignore = new String[]{""};
     }
 
-    public void jsonEquals(JSONObject actual, JSONObject expected) {
+    /**
+     * Asserts two objects are equal.
+     * <p>
+     * Default mode and ignore list:
+     * CompareMode mode = CompareMode.NOT_ORDERED;
+     * String[] ignore = new String[]{""};
+     * <p>
+     * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
+     *
+     * @param actual   actual object {@link org.json.JSONObject}
+     * @param expected expected object {@link org.json.JSONObject}
+     */
+    public void jsonEquals(final JSONObject actual, final JSONObject expected) {
         try {
             EqualityAsserter asserter = new EqualityAsserter();
             asserter.assertEquals(actual, expected, mode, ignore);
         } finally {
             // Set default mode, ignore
-            setDefault();
+            setDefaultState();
         }
     }
 
-    public void jsonEquals(JSONArray actual, JSONArray expected) {
+    /**
+     * Asserts two objects are equal.
+     * <p>
+     * Default mode and ignore list:
+     * CompareMode mode = CompareMode.NOT_ORDERED;
+     * String[] ignore = new String[]{""};
+     * <p>
+     * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
+     *
+     * @param actual   actual object {@link org.json.JSONArray}
+     * @param expected expected object {@link org.json.JSONArray}
+     */
+    public void jsonEquals(final JSONArray actual, final JSONArray expected) {
         try {
             EqualityAsserter asserter = new EqualityAsserter();
             asserter.assertEquals(actual, expected, mode, ignore);
         } finally {
             // Set default mode, ignore
-            setDefault();
+            setDefaultState();
         }
     }
 
-    public void jsonEquals(JSONArray actual, JSONObject[] expected) {
+    /**
+     * Asserts two objects are equal.
+     * <p>
+     * Default mode and ignore list:
+     * CompareMode mode = CompareMode.NOT_ORDERED;
+     * String[] ignore = new String[]{""};
+     * <p>
+     * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
+     *
+     * @param actual   actual object {@link org.json.JSONArray}
+     * @param expected expected object {@link org.json.JSONObject[]}
+     */
+    public void jsonEquals(final JSONArray actual, final JSONObject[] expected) {
         try {
             EqualityAsserter asserter = new EqualityAsserter();
-            asserter.assertEquals(actual, asserter.objectsToArray(expected), mode, ignore);
+            asserter.assertEquals(actual, objectsToArray(expected), mode, ignore);
         } finally {
             // Set default mode, ignore
-            setDefault();
+            setDefaultState();
         }
     }
 
-    public void jsonEquals(Response actual, JSONArray expected) {
+    /**
+     * Asserts two objects are equal.
+     * <p>
+     * Default mode and ignore list:
+     * CompareMode mode = CompareMode.NOT_ORDERED;
+     * String[] ignore = new String[]{""};
+     * <p>
+     * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
+     *
+     * @param actual   actual object {@link io.restassured.response.Response}
+     * @param expected expected object {@link org.json.JSONArray}
+     */
+    public void jsonEquals(final Response actual, final JSONArray expected) {
         try {
             EqualityAsserter asserter = new EqualityAsserter();
             asserter.assertEquals(new JSONArray(actual.asString()), expected, mode, ignore);
         } finally {
             // Set default mode, ignore
-            setDefault();
+            setDefaultState();
         }
     }
 
-    public void jsonEquals(Response actual, JSONObject expected) {
+    /**
+     * Asserts two objects are equal.
+     * <p>
+     * Default mode and ignore list:
+     * CompareMode mode = CompareMode.NOT_ORDERED;
+     * String[] ignore = new String[]{""};
+     * <p>
+     * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
+     *
+     * @param actual   actual object {@link io.restassured.response.Response}
+     * @param expected expected object {@link org.json.JSONObject}
+     */
+    public void jsonEquals(final Response actual, final JSONObject expected) {
         try {
             EqualityAsserter asserter = new EqualityAsserter();
             asserter.assertEquals(new JSONObject(actual.asString()), expected, mode, ignore);
         } finally {
             // Set default mode, ignore
-            setDefault();
+            setDefaultState();
         }
     }
 
-    public void jsonEquals(Response actual, JSONObject[] expected) {
+    /**
+     * Asserts two objects are equal.
+     * <p>
+     * Default mode and ignore list:
+     * CompareMode mode = CompareMode.NOT_ORDERED;
+     * String[] ignore = new String[]{""};
+     * <p>
+     * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
+     *
+     * @param actual   actual object {@link io.restassured.response.Response}
+     * @param expected expected object {@link org.json.JSONObject[]}
+     */
+    public void jsonEquals(final Response actual, final JSONObject[] expected) {
         try {
             EqualityAsserter asserter = new EqualityAsserter();
-            asserter.assertEquals(new JSONArray(actual.asString()), asserter.objectsToArray(expected), mode, ignore);
+            asserter.assertEquals(new JSONArray(actual.asString()), objectsToArray(expected), mode, ignore);
         } finally {
             // Set default mode, ignore
-            setDefault();
+            setDefaultState();
         }
     }
 
-    public JsonAssert ignore(String... ignore) {
+    /**
+     * Fields to be ignored on comparison
+     *
+     * @param ignore fields array
+     * @return JsonAssert.class
+     */
+    public JsonAssert ignore(final String... ignore) {
         this.ignore = ignore;
         return this;
     }
 
-    public JsonAssert withMode(CompareMode mode) {
+    /**
+     * Mode objects will be compared with.
+     * Available compare mode list see {@link com.mbi.CompareMode}
+     *
+     * @param mode compare mode {@link com.mbi.CompareMode}
+     * @return JsonAssert.class
+     */
+    public JsonAssert withMode(final CompareMode mode) {
         this.mode = mode;
         return this;
     }
