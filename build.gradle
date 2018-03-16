@@ -36,6 +36,12 @@ test {
         def dir = new File(suitesDir)
         dir.eachFileRecurse(FileType.FILES) { file -> suitesList << file }
         suitesList.each { options.suites(it.path) }
+
+        testLogging {
+            events "passed", "skipped", "failed"
+            exceptionFormat = 'full'
+            showStandardStreams = true
+        }
     }
 }
 
