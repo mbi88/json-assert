@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/mbi88/json-assert.svg?branch=master)](https://travis-ci.org/mbi88/json-assert)
+[![codecov](https://codecov.io/gh/mbi88/json-assert/branch/master/graph/badge.svg)](https://codecov.io/gh/mbi88/json-assert)
+
 
 ## About
 Based on
