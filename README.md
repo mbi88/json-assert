@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/mbi88/json-assert.svg?branch=master)](https://travis-ci.org/mbi88/json-assert)
 
 ## About
 Based on
