@@ -47,6 +47,8 @@ test {
 
 jacocoTestReport {
     reports {
+        xml.enabled true
+        html.enabled true
         html.destination file("${buildDir}/reports/coverage")
     }
 }
@@ -72,3 +74,5 @@ quality {
     findbugs = true
     codenarc = true
 }
+
+check.dependsOn jacocoTestReport
