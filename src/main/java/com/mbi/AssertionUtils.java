@@ -4,11 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Utils class.
@@ -43,13 +40,13 @@ final class AssertionUtils {
      * @param fields redundant fields to be removed.
      * @return result json without redundant fields
      */
-    static JSONArray cutFields(final JSONArray json, final String[] fields) {
-        JSONArray result = new JSONArray();
+    static JSONArray cutFields(final JSONArray json, final String... fields) {
+        final JSONArray result = new JSONArray();
         for (int i = 0; i < json.length(); i++) {
             // Json array may consist of not json objects (e.g.: [1, 2, 5]).
             // In this case return original json array
             try {
-                JSONObject tmpJson = new JSONObject(json.get(i).toString());
+                final JSONObject tmpJson = new JSONObject(json.get(i).toString());
                 for (String field : fields) {
                     tmpJson.remove(field);
                 }
@@ -69,8 +66,8 @@ final class AssertionUtils {
      * @param jsonObjects json objects.
      * @return json array.
      */
-    static JSONArray objectsToArray(JSONObject[] jsonObjects) {
-        JSONArray expectedArray = new JSONArray();
+    static JSONArray objectsToArray(final JSONObject[] jsonObjects) {
+        final JSONArray expectedArray = new JSONArray();
 
         for (JSONObject j : jsonObjects) {
             expectedArray.put(j);
@@ -124,14 +121,14 @@ final class AssertionUtils {
      * @return json array with common objects.
      */
     static JSONArray getCommonArray(final JSONArray expected, final JSONArray actual) {
-        JSONArray commonArray = new JSONArray();
+        final JSONArray commonArray = new JSONArray();
 
         // Get a set of expected objects that are common for actual
-        HashSet<CompareObject> commonSet = new LinkedHashSet<>();
+        final HashSet<CompareObject> commonSet = new LinkedHashSet<>();
         for (Object eo : expected) {
-            CompareObject expectedJson = new CompareObject(eo);
+            final CompareObject expectedJson = new CompareObject(eo);
             for (Object ao : actual) {
-                CompareObject actualJson = new CompareObject(ao);
+                final CompareObject actualJson = new CompareObject(ao);
                 if (expectedJson.equals(actualJson)) {
                     commonSet.add(expectedJson);
                 }
@@ -139,7 +136,7 @@ final class AssertionUtils {
         }
 
         for (CompareObject o : commonSet) {
-            commonArray.put(o.toJSONObject());
+            commonArray.put(o.toJsonObject());
         }
 
         return commonArray;

@@ -29,15 +29,17 @@ final class EqualityAsserter {
             final String... ignore) {
         // Remove redundant fields
         // Initialize new expected/actual objects to avoid removing fields from objects while assertion with ignore
-        JSONObject actualWithoutNotNeededFields = AssertionUtils.cutFields(new JSONObject(actual.toString()), ignore);
-        JSONObject expWithoutNotNeededFields = AssertionUtils.cutFields(new JSONObject(expected.toString()), ignore);
+        final JSONObject actualWithoutNotNeededFields = AssertionUtils
+                .cutFields(new JSONObject(actual.toString()), ignore);
+        final JSONObject expectedWithoutNotNeededFields = AssertionUtils
+                .cutFields(new JSONObject(expected.toString()), ignore);
 
         // Get compare mode
-        JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
+        final JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
 
         // Compare
         try {
-            JSONAssert.assertEquals(expWithoutNotNeededFields, actualWithoutNotNeededFields, jsonCompareMode);
+            JSONAssert.assertEquals(expectedWithoutNotNeededFields, actualWithoutNotNeededFields, jsonCompareMode);
         } catch (AssertionError error) {
             throw new AssertionError(getErrorMessage(error, expected, actual));
         }
@@ -59,21 +61,23 @@ final class EqualityAsserter {
             final String... ignore) {
         // Remove redundant fields
         // Initialize new expected/actual arrays to avoid removing fields from objects while assertion with ignore
-        JSONArray actualWithoutNotNeededFields = AssertionUtils.cutFields(new JSONArray(actual.toString()), ignore);
-        JSONArray expWithoutNotNeededFields = AssertionUtils.cutFields(new JSONArray(expected.toString()), ignore);
+        final JSONArray actualWithoutNotNeededFields = AssertionUtils
+                .cutFields(new JSONArray(actual.toString()), ignore);
+        final JSONArray expectedWithoutNotNeededFields = AssertionUtils
+                .cutFields(new JSONArray(expected.toString()), ignore);
 
         // Get compare mode
-        JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
+        final JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
 
         // Creates common objects array of expected and actual arrays if compare mode assumes extensibility
         // of actual array. For cases when it is needed to check if actual array contains expected array.
-        JSONArray actualCommon = mode.isExtensibleArray()
-                ? getCommonArray(expWithoutNotNeededFields, actualWithoutNotNeededFields)
+        final JSONArray actualCommon = mode.isExtensibleArray()
+                ? getCommonArray(expectedWithoutNotNeededFields, actualWithoutNotNeededFields)
                 : actualWithoutNotNeededFields;
 
         // Compare
         try {
-            JSONAssert.assertEquals(expWithoutNotNeededFields, actualCommon, jsonCompareMode);
+            JSONAssert.assertEquals(expectedWithoutNotNeededFields, actualCommon, jsonCompareMode);
         } catch (AssertionError error) {
             throw new AssertionError(getErrorMessage(error, expected, actual));
         }

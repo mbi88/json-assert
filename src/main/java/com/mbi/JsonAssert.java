@@ -67,7 +67,7 @@ public final class JsonAssert {
     /**
      * Fields to be ignored on comparison.
      */
-    private String[] ignore;
+    private String[] ignoreFieldNames;
 
     /**
      * Sets default state before usage.
@@ -85,7 +85,7 @@ public final class JsonAssert {
         // Default mode
         this.mode = CompareMode.NOT_ORDERED;
         // Default fields to ignore
-        this.ignore = new String[]{""};
+        this.ignoreFieldNames = new String[]{""};
     }
 
     /**
@@ -93,17 +93,18 @@ public final class JsonAssert {
      * <p>
      * Default mode and ignore list:
      * CompareMode mode = CompareMode.NOT_ORDERED;
-     * String[] ignore = new String[]{""};
+     * String[] ignoreFieldNames = new String[]{""};
      * <p>
      * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
      *
      * @param actual   actual object {@link org.json.JSONObject}
      * @param expected expected object {@link org.json.JSONObject}
+     * @throws AssertionError if assertion failed.
      */
     public void jsonEquals(final JSONObject actual, final JSONObject expected) {
         try {
-            EqualityAsserter asserter = new EqualityAsserter();
-            asserter.assertEquals(actual, expected, mode, ignore);
+            final EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(actual, expected, mode, ignoreFieldNames);
         } finally {
             // Set default mode, ignore
             setDefaultState();
@@ -115,17 +116,18 @@ public final class JsonAssert {
      * <p>
      * Default mode and ignore list:
      * CompareMode mode = CompareMode.NOT_ORDERED;
-     * String[] ignore = new String[]{""};
+     * String[] ignoreFieldNames = new String[]{""};
      * <p>
      * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
      *
      * @param actual   actual object {@link org.json.JSONArray}
      * @param expected expected object {@link org.json.JSONArray}
+     * @throws AssertionError if assertion failed.
      */
     public void jsonEquals(final JSONArray actual, final JSONArray expected) {
         try {
-            EqualityAsserter asserter = new EqualityAsserter();
-            asserter.assertEquals(actual, expected, mode, ignore);
+            final EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(actual, expected, mode, ignoreFieldNames);
         } finally {
             // Set default mode, ignore
             setDefaultState();
@@ -137,17 +139,18 @@ public final class JsonAssert {
      * <p>
      * Default mode and ignore list:
      * CompareMode mode = CompareMode.NOT_ORDERED;
-     * String[] ignore = new String[]{""};
+     * String[] ignoreFieldNames = new String[]{""};
      * <p>
      * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
      *
      * @param actual   actual object {@link org.json.JSONArray}
-     * @param expected expected object {@link org.json.JSONObject[]}
+     * @param expected expected object {@link org.json.JSONObject}
+     * @throws AssertionError if assertion failed.
      */
-    public void jsonEquals(final JSONArray actual, final JSONObject[] expected) {
+    public void jsonEquals(final JSONArray actual, final JSONObject... expected) {
         try {
-            EqualityAsserter asserter = new EqualityAsserter();
-            asserter.assertEquals(actual, objectsToArray(expected), mode, ignore);
+            final EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(actual, objectsToArray(expected), mode, ignoreFieldNames);
         } finally {
             // Set default mode, ignore
             setDefaultState();
@@ -159,17 +162,18 @@ public final class JsonAssert {
      * <p>
      * Default mode and ignore list:
      * CompareMode mode = CompareMode.NOT_ORDERED;
-     * String[] ignore = new String[]{""};
+     * String[] ignoreFieldNames = new String[]{""};
      * <p>
      * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
      *
      * @param actual   actual object {@link io.restassured.response.Response}
      * @param expected expected object {@link org.json.JSONArray}
+     * @throws AssertionError if assertion failed.
      */
     public void jsonEquals(final Response actual, final JSONArray expected) {
         try {
-            EqualityAsserter asserter = new EqualityAsserter();
-            asserter.assertEquals(new JSONArray(actual.asString()), expected, mode, ignore);
+            final EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(new JSONArray(actual.asString()), expected, mode, ignoreFieldNames);
         } finally {
             // Set default mode, ignore
             setDefaultState();
@@ -181,17 +185,18 @@ public final class JsonAssert {
      * <p>
      * Default mode and ignore list:
      * CompareMode mode = CompareMode.NOT_ORDERED;
-     * String[] ignore = new String[]{""};
+     * String[] ignoreFieldNames = new String[]{""};
      * <p>
      * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
      *
      * @param actual   actual object {@link io.restassured.response.Response}
      * @param expected expected object {@link org.json.JSONObject}
+     * @throws AssertionError if assertion failed.
      */
     public void jsonEquals(final Response actual, final JSONObject expected) {
         try {
-            EqualityAsserter asserter = new EqualityAsserter();
-            asserter.assertEquals(new JSONObject(actual.asString()), expected, mode, ignore);
+            final EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(new JSONObject(actual.asString()), expected, mode, ignoreFieldNames);
         } finally {
             // Set default mode, ignore
             setDefaultState();
@@ -203,17 +208,18 @@ public final class JsonAssert {
      * <p>
      * Default mode and ignore list:
      * CompareMode mode = CompareMode.NOT_ORDERED;
-     * String[] ignore = new String[]{""};
+     * String[] ignoreFieldNames = new String[]{""};
      * <p>
      * Sets {@link JsonAssert#setDefaultState()} on any comparison result.
      *
      * @param actual   actual object {@link io.restassured.response.Response}
-     * @param expected expected object {@link org.json.JSONObject[]}
+     * @param expected expected object {@link org.json.JSONObject}
+     * @throws AssertionError if assertion failed.
      */
-    public void jsonEquals(final Response actual, final JSONObject[] expected) {
+    public void jsonEquals(final Response actual, final JSONObject... expected) {
         try {
-            EqualityAsserter asserter = new EqualityAsserter();
-            asserter.assertEquals(new JSONArray(actual.asString()), objectsToArray(expected), mode, ignore);
+            final EqualityAsserter asserter = new EqualityAsserter();
+            asserter.assertEquals(new JSONArray(actual.asString()), objectsToArray(expected), mode, ignoreFieldNames);
         } finally {
             // Set default mode, ignore
             setDefaultState();
@@ -221,13 +227,13 @@ public final class JsonAssert {
     }
 
     /**
-     * Fields to be ignored on comparison
+     * Fields to be ignored on comparison.
      *
-     * @param ignore fields array
+     * @param ignoreFieldNames fields array
      * @return JsonAssert.class
      */
-    public JsonAssert ignore(final String... ignore) {
-        this.ignore = ignore;
+    public JsonAssert ignore(final String... ignoreFieldNames) {
+        this.ignoreFieldNames = ignoreFieldNames;
         return this;
     }
 

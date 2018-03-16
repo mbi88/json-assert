@@ -367,8 +367,6 @@ public class JsonAssertTest {
         assertFalse(isPassed);
     }
 
-    // TODO: 10/13/16 add tests with different actual/expected type
-
     @Test
     public void testArraysNotOfJsonObjects() {
         JSONArray a1 = new JSONArray("[18,17,16,15,14]");

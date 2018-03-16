@@ -4,6 +4,8 @@ import org.json.JSONObject;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import java.util.Objects;
+
 /**
  * Need for json objects equality assurance.
  */
@@ -28,7 +30,7 @@ final class CompareObject {
      *
      * @return json object.
      */
-    JSONObject toJSONObject() {
+    JSONObject toJsonObject() {
         return new JSONObject(this.object.toString());
     }
 
@@ -51,9 +53,13 @@ final class CompareObject {
      */
     @Override
     public boolean equals(final Object obj) {
+        if (Objects.isNull(obj)) {
+            return false;
+        }
+
         try {
             JSONAssert.assertEquals(
-                    this.toJSONObject(),
+                    this.toJsonObject(),
                     new JSONObject(obj.toString()),
                     JSONCompareMode.NON_EXTENSIBLE);
         } catch (AssertionError error) {
