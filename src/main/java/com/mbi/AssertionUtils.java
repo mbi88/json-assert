@@ -1,11 +1,14 @@
 package com.mbi;
 
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * Utils class.
@@ -20,17 +23,27 @@ final class AssertionUtils {
 
     /**
      * Returns json object without passed fields.
+     * Method supports jay way json path as a field name.
      *
      * @param json   json with redundant fields
      * @param fields redundant fields to be removed
      * @return result json without redundant fields
      */
     static JSONObject cutFields(final JSONObject json, final String... fields) {
+        JSONObject result = json;
         for (String field : fields) {
-            json.remove(field);
+            // Json path support
+            if (field.startsWith("$")) {
+                final DocumentContext context = JsonPath.parse(json.toString());
+                final JsonPath jsonPath = JsonPath.compile(field);
+                final Map map = context.delete(jsonPath).json();
+                result = new JSONObject(map);
+            } else {
+                result.remove(field);
+            }
         }
 
-        return json;
+        return result;
     }
 
     /**
@@ -46,11 +59,8 @@ final class AssertionUtils {
             // Json array may consist of not json objects (e.g.: [1, 2, 5]).
             // In this case return original json array
             try {
-                final JSONObject tmpJson = new JSONObject(json.get(i).toString());
-                for (String field : fields) {
-                    tmpJson.remove(field);
-                }
-
+                JSONObject tmpJson = new JSONObject(json.get(i).toString());
+                tmpJson = cutFields(tmpJson, fields);
                 result.put(tmpJson);
             } catch (JSONException je) {
                 return json;

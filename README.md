@@ -43,6 +43,7 @@ Based on
 
  Sometimes there is no need to compare all fields in objects, some fields can be ignored. Use
  com.mbi.JsonAssert#ignore(String...) to ignore fields.
+ Jay way json path is supported.
  
  Example. We have following arrays:
  actual - [{"id": 1, "name": "string", "structured": false}, {"id": 2, "name": "string", "structured": true}]
@@ -81,7 +82,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 
-public class JsonAssertTest {
+public class JsonAssertTest2 {
 
     private final JsonAssert assertion = new JsonAssert();
 
@@ -105,19 +106,18 @@ public class JsonAssertTest {
     @Test
     public void test2() {
         // Set expected json 
-        JSONArray expected = new JSONArray()
-                .put(new JSONObject().put("a", 1))
-                .put(new JSONObject().put("a", 2));
+        JSONArray expected = new JSONArray().put(new JSONObject().put("a", new JSONObject().put("b", 2).put("c", 3)));
         // Set actual json
-        JSONArray actual = new JSONArray()
-                .put(new JSONObject().put("a", 1))
-                .put(new JSONObject().put("a", 2).put("b", "extra"))
-                .put(new JSONObject().put("a", 3));
+        JSONArray actual = new JSONArray().put(new JSONObject().put("a", new JSONObject().put("b", 2)).put("d", 4));
 
         assertion
-                .ignore("b")
+                .ignore("d", "$.a.c")
                 .withMode(CompareMode.ORDERED_EXTENSIBLE_ARRAY)
                 .jsonEquals(actual, expected);
     }
 }
 ```
+
+## See also
+- <a href="https://github.com/stleary/JSON-java">org.json API</a>
+- <a href="https://github.com/json-path/JsonPath">Json path</a>

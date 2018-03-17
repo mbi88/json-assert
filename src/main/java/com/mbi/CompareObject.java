@@ -4,8 +4,6 @@ import org.json.JSONObject;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-import java.util.Objects;
-
 /**
  * Need for json objects equality assurance.
  */
@@ -53,20 +51,27 @@ final class CompareObject {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (Objects.isNull(obj)) {
-            return false;
-        }
+        assert obj != null : "passed object can't be null";
+        return obj instanceof CompareObject && isEqual(this.toJsonObject(), new JSONObject(obj.toString()));
+    }
 
+    /**
+     * Internal equality assertion for overriding equals method.
+     *
+     * @param json1 json object.
+     * @param json2 json object.
+     * @return equality result.
+     */
+    private boolean isEqual(final JSONObject json1, final JSONObject json2) {
+        boolean equals;
         try {
-            JSONAssert.assertEquals(
-                    this.toJsonObject(),
-                    new JSONObject(obj.toString()),
-                    JSONCompareMode.NON_EXTENSIBLE);
+            JSONAssert.assertEquals(json1, json2, JSONCompareMode.NON_EXTENSIBLE);
+            equals = true;
         } catch (AssertionError error) {
-            return false;
+            equals = false;
         }
 
-        return obj instanceof CompareObject;
+        return equals;
     }
 
     /**

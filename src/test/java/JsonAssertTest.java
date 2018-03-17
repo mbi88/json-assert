@@ -390,4 +390,62 @@ public class JsonAssertTest {
         }
         assertFalse(isPassed);
     }
+
+    @Test
+    public void testJsonPathInIgnoreForJsonObjects() {
+        JSONObject j1 = new JSONObject().put("a", new JSONObject().put("b", 1)).put("d", 5);
+        JSONObject j2 = new JSONObject().put("a", new JSONObject().put("b", 1).put("c", 3));
+
+        assertion
+                .ignore("$.a.c", "d")
+                .jsonEquals(j1, j2);
+    }
+
+    @Test
+    public void testJsonPathInIgnoreForJsonArrays() {
+        JSONArray j1 = new JSONArray()
+                .put(new JSONObject().put("a", new JSONObject().put("b", 1)).put("d", 5))
+                .put(new JSONObject().put("a", new JSONObject().put("b", 1)).put("d", 5));
+        JSONArray j2 = new JSONArray()
+                .put(new JSONObject().put("a", new JSONObject().put("b", 1).put("c", 3)))
+                .put(new JSONObject().put("a", new JSONObject().put("b", 1)).put("d", 5));
+
+        assertion
+                .ignore("$.a.c", "d")
+                .jsonEquals(j1, j2);
+    }
+
+    @Test
+    public void testFailIfJsonPathPointsToNonExistentField() {
+        boolean isPassed = false;
+        JSONObject j1 = new JSONObject().put("a", new JSONObject().put("b", 1)).put("d", 5);
+        JSONObject j2 = new JSONObject().put("a", new JSONObject().put("b", 1).put("c", 3));
+
+        try {
+            assertion
+                    .ignore("$.a.e", "d")
+                    .jsonEquals(j1, j2);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
+    public void testNullAsObjectOfArray() {
+        boolean isPassed = false;
+        JSONArray j = new JSONArray("[{\"a\": 1, \"b\": 1}, {\"a\": 2}]");
+        JSONArray j2 = new JSONArray().put(new JSONObject().put("b", JSONObject.NULL));
+        try {
+            assertion
+                    .ignore("a")
+                    .withMode(CompareMode.ORDERED_EXTENSIBLE_ARRAY)
+                    .jsonEquals(j, j2);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
 }
