@@ -134,18 +134,18 @@ final class AssertionUtils {
         final JSONArray commonArray = new JSONArray();
 
         // Get a set of expected objects that are common for actual
-        final HashSet<CompareObject> commonSet = new LinkedHashSet<>();
+        final HashSet<ComparableObject> commonSet = new LinkedHashSet<>();
         for (Object eo : expected) {
-            final CompareObject expectedJson = new CompareObject(eo);
+            final ComparableObject expectedJson = new ComparableObject(eo);
             for (Object ao : actual) {
-                final CompareObject actualJson = new CompareObject(ao);
+                final ComparableObject actualJson = new ComparableObject(ao);
                 if (expectedJson.equals(actualJson)) {
                     commonSet.add(expectedJson);
                 }
             }
         }
 
-        for (CompareObject o : commonSet) {
+        for (ComparableObject o : commonSet) {
             commonArray.put(o.toJsonObject());
         }
 

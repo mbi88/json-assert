@@ -1,5 +1,6 @@
 package com.mbi;
 
+import org.apache.commons.lang3.Validate;
 import org.json.JSONObject;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -7,20 +8,20 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 /**
  * Need for json objects equality assurance.
  */
-final class CompareObject {
+final class ComparableObject {
 
     /**
-     * Compare object.
+     * Object to compare.
      */
-    private final Object object;
+    private final Object comparableObject;
 
     /**
      * Constructor.
      *
-     * @param object compare object.
+     * @param comparableObject object to compare.
      */
-    CompareObject(final Object object) {
-        this.object = object;
+    ComparableObject(final Object comparableObject) {
+        this.comparableObject = comparableObject;
     }
 
     /**
@@ -29,7 +30,7 @@ final class CompareObject {
      * @return json object.
      */
     JSONObject toJsonObject() {
-        return new JSONObject(this.object.toString());
+        return new JSONObject(this.comparableObject.toString());
     }
 
     /**
@@ -39,27 +40,27 @@ final class CompareObject {
      */
     @Override
     public int hashCode() {
-        return this.object.hashCode();
+        return this.comparableObject.hashCode();
     }
 
     /**
      * Compares two objects via JSONAssert.assertEquals() method. JSONCompareMode.NON_EXTENSIBLE is used by default.
-     * Returns true if no assertion error exception is caught.
+     * Returns true if no assertion error exception was caught.
      *
      * @param obj object to be compared.
      * @return comparison result.
      */
     @Override
     public boolean equals(final Object obj) {
-        assert obj != null : "passed object can't be null";
-        return obj instanceof CompareObject && isEqual(this.toJsonObject(), new JSONObject(obj.toString()));
+        Validate.notNull(obj, "Passed object can't be null");
+        return obj instanceof ComparableObject && isEqual(this.toJsonObject(), new JSONObject(obj.toString()));
     }
 
     /**
-     * Internal equality assertion for overriding equals method.
+     * Internal equality assertion.
      *
-     * @param json1 json object.
-     * @param json2 json object.
+     * @param json1 1st json object.
+     * @param json2 2nd json object.
      * @return equality result.
      */
     private boolean isEqual(final JSONObject json1, final JSONObject json2) {
@@ -81,6 +82,6 @@ final class CompareObject {
      */
     @Override
     public String toString() {
-        return this.object.toString();
+        return this.comparableObject.toString();
     }
 }
