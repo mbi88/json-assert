@@ -397,7 +397,7 @@ public class JsonAssertTest {
         JSONObject j2 = new JSONObject().put("a", new JSONObject().put("b", 1).put("c", 3));
 
         assertion
-                .ignore("$.a.c", "d")
+                .ignore("a.c", "d")
                 .jsonEquals(j1, j2);
     }
 
@@ -411,7 +411,7 @@ public class JsonAssertTest {
                 .put(new JSONObject().put("a", new JSONObject().put("b", 1)).put("d", 5));
 
         assertion
-                .ignore("$.a.c", "d")
+                .ignore("a.c", "d")
                 .jsonEquals(j1, j2);
     }
 
@@ -423,7 +423,7 @@ public class JsonAssertTest {
 
         try {
             assertion
-                    .ignore("$.a.e", "d")
+                    .ignore("a.e", "d")
                     .jsonEquals(j1, j2);
             isPassed = true;
         } catch (AssertionError ae) {
@@ -435,7 +435,7 @@ public class JsonAssertTest {
     @Test
     public void testNullAsObjectOfArray() {
         boolean isPassed = false;
-        JSONArray j = new JSONArray("[{\"a\": 1, \"b\": 1}, {\"a\": 2}]");
+        JSONArray j = new JSONArray("[{\"a\": 1, \"b\": 1}, {\"a\": 2, \"b\": 1}]");
         JSONArray j2 = new JSONArray().put(new JSONObject().put("b", JSONObject.NULL));
         try {
             assertion
@@ -445,6 +445,195 @@ public class JsonAssertTest {
             isPassed = true;
         } catch (AssertionError ae) {
             assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
+    public void testCompareOnly1() {
+        JSONObject json = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 1).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1).put("ccc2", 2)));
+        JSONObject json2 = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 3).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1)))
+                .put("d", 6);
+
+        assertion
+                .ignore("c.cc.ccc2")
+                .compareOnly("c.cc")
+                .jsonEquals(json, json2);
+    }
+
+    @Test
+    public void testCompareOnly2() {
+        JSONObject json = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 1).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1).put("ccc2", 2)));
+        JSONObject json2 = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 3).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1)))
+                .put("d", 6);
+
+        boolean isPassed = false;
+        try {
+            assertion
+                    .compareOnly("c.cc")
+                    .jsonEquals(json, json2);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
+    public void testCompareOnly3() {
+        JSONObject json = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 1).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1).put("ccc2", 2)));
+        JSONObject json2 = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 3).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1)))
+                .put("d", 6);
+
+        assertion
+                .compareOnly("a")
+                .jsonEquals(json, json2);
+    }
+
+    @Test
+    public void testCompareOnly4() {
+        JSONObject json = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 1).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1).put("ccc2", 2)));
+        JSONObject json2 = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 3).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1)))
+                .put("d", 6);
+
+        boolean isPassed = false;
+        try {
+            assertion
+                    .compareOnly("b")
+                    .jsonEquals(json, json2);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
+    public void testIgnore1() {
+        JSONObject json = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 1).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1).put("ccc2", 2)));
+        JSONObject json2 = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 3).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1)))
+                .put("d", 6);
+
+        assertion
+                .ignore("d", "c.cc.ccc2", "b")
+                .jsonEquals(json, json2);
+    }
+
+    @Test
+    public void testIgnore2() {
+        boolean isPassed = false;
+        JSONObject json = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 1).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1).put("ccc2", 2)));
+        JSONObject json2 = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 3).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1)))
+                .put("d", 6);
+
+        try {
+            assertion
+                    .ignore("c.cc.ccc2", "b")
+                    .jsonEquals(json, json2);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
+    public void testIgnore3() {
+        boolean isPassed = false;
+        JSONObject json = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 1).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1).put("ccc2", 2)));
+        JSONObject json2 = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 3).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1)))
+                .put("d", 6);
+
+        try {
+            assertion
+                    .ignore("d", "b")
+                    .jsonEquals(json, json2);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
+    public void testIgnore4() {
+        boolean isPassed = false;
+        JSONObject json = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 1).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1).put("ccc2", 2)));
+        JSONObject json2 = new JSONObject()
+                .put("a", 1)
+                .put("b", new JSONObject().put("b1", 3).put("b2", 2).put("b3", 3))
+                .put("c", new JSONObject().put("cc", new JSONObject().put("ccc1", 1)))
+                .put("d", 6);
+
+        try {
+            assertion
+                    .ignore("d", "c.cc.ccc2")
+                    .jsonEquals(json, json2);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
+    public void testRemoveAllFields() {
+        boolean isPassed = false;
+        JSONObject json = new JSONObject().put("a", 1);
+        JSONObject json2 = new JSONObject().put("a", 1);
+
+        try {
+            assertion
+                    .ignore("a")
+                    .jsonEquals(json, json2);
+            isPassed = true;
+        } catch (IllegalArgumentException ie) {
+            assertTrue(ie.getMessage().contains("You removed all fields from json"));
         }
         assertFalse(isPassed);
     }

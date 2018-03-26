@@ -44,7 +44,6 @@ Based on
 
  Sometimes there is no need to compare all fields in objects, some fields can be ignored. Use
  com.mbi.JsonAssert#ignore(String...) to ignore fields.
- Jay way json path is supported.
  
  Example. We have following arrays:
  actual - [{"id": 1, "name": "string", "structured": false}, {"id": 2, "name": "string", "structured": true}]
@@ -112,7 +111,7 @@ public class JsonAssertTest2 {
         JSONArray actual = new JSONArray().put(new JSONObject().put("a", new JSONObject().put("b", 2)).put("d", 4));
 
         assertion
-                .ignore("d", "$.a.c")
+                .ignore("d", "a.c")
                 .withMode(CompareMode.ORDERED_EXTENSIBLE_ARRAY)
                 .jsonEquals(actual, expected);
     }

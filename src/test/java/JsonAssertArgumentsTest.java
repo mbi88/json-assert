@@ -53,19 +53,19 @@ public class JsonAssertArgumentsTest {
 
     @Test
     public void testJsonObjectFieldsNotRemovedAfterIgnore() {
-        JSONObject j = new JSONObject("{\"a\": 1}");
+        JSONObject j = new JSONObject("{\"a\": 1, \"b\": 1}}");
         assertion
                 .ignore("a")
-                .jsonEquals(j, new JSONObject("{\"a\": 1}"));
+                .jsonEquals(j, new JSONObject("{\"a\": 1, \"b\": 1}}"));
         j.get("a");
     }
 
     @Test
     public void testJsonArraysObjectFieldsNotRemovedAfterIgnore() {
-        JSONArray j = new JSONArray("[{\"a\": 1}, {\"a\": 2}]");
+        JSONArray j = new JSONArray("[{\"a\": 1, \"b\": 1}, {\"a\": 2, \"b\": 1}]");
         assertion
                 .ignore("a")
-                .jsonEquals(j, new JSONArray("[{\"a\": 1}, {\"a\": 2}]"));
+                .jsonEquals(j, new JSONArray("[{\"a\": 1,\"b\": 1}, {\"a\": 2,\"b\": 1}]"));
         j.getJSONObject(0).getInt("a");
     }
 }

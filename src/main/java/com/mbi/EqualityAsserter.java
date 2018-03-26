@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import java.util.Set;
+
 import static com.mbi.AssertionUtils.getCommonArray;
 import static com.mbi.AssertionUtils.getErrorMessage;
 
@@ -14,57 +16,55 @@ import static com.mbi.AssertionUtils.getErrorMessage;
 final class EqualityAsserter {
 
     /**
-     * Method to assert two json objects are equal.
+     * Asserts two json objects are equal.
      *
-     * @param actual   actual json object.
-     * @param expected expected json object.
-     * @param mode     compare mode.
-     * @param ignore   array of fields to be ignored on assertion.
+     * @param actual    actual json object.
+     * @param expected  expected json object.
+     * @param mode      compare mode.
+     * @param blackList fields to be ignored on assertion.
+     * @param whiteList fields to be only included on assertion.
      * @throws AssertionError if assertion failed.
      */
     void assertEquals(
             final JSONObject actual,
             final JSONObject expected,
             final CompareMode mode,
-            final String... ignore) {
+            final Set<String> blackList,
+            final Set<String> whiteList) {
         // Remove redundant fields
-        // Initialize new expected/actual objects to avoid removing fields from objects while assertion with ignore
-        final JSONObject actualWithoutNotNeededFields = AssertionUtils
-                .cutFields(new JSONObject(actual.toString()), ignore);
-        final JSONObject expectedWithoutNotNeededFields = AssertionUtils
-                .cutFields(new JSONObject(expected.toString()), ignore);
+        final JSONObject actualFiltered = AssertionUtils.filterFields(actual, blackList, whiteList);
+        final JSONObject expectedFiltered = AssertionUtils.filterFields(expected, blackList, whiteList);
 
         // Get compare mode
         final JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
 
         // Compare
         try {
-            JSONAssert.assertEquals(expectedWithoutNotNeededFields, actualWithoutNotNeededFields, jsonCompareMode);
+            JSONAssert.assertEquals(expectedFiltered, actualFiltered, jsonCompareMode);
         } catch (AssertionError error) {
-            throw new AssertionError(getErrorMessage(error, expected, actual));
+            throw new AssertionError(getErrorMessage(error, expectedFiltered, actualFiltered));
         }
     }
 
     /**
-     * Method to assert two json arrays are equal.
+     * Asserts two json arrays are equal.
      *
-     * @param actual   actual json array.
-     * @param expected expected json array.
-     * @param mode     compare mode.
-     * @param ignore   array of fields to be ignored on assertion.
+     * @param actual    actual json array.
+     * @param expected  expected json array.
+     * @param mode      compare mode.
+     * @param blackList fields to be ignored on assertion.
+     * @param whiteList fields to be only included on assertion.
      * @throws AssertionError if assertion failed.
      */
     void assertEquals(
             final JSONArray actual,
             final JSONArray expected,
             final CompareMode mode,
-            final String... ignore) {
+            final Set<String> blackList,
+            final Set<String> whiteList) {
         // Remove redundant fields
-        // Initialize new expected/actual arrays to avoid removing fields from objects while assertion with ignore
-        final JSONArray actualWithoutNotNeededFields = AssertionUtils
-                .cutFields(new JSONArray(actual.toString()), ignore);
-        final JSONArray expectedWithoutNotNeededFields = AssertionUtils
-                .cutFields(new JSONArray(expected.toString()), ignore);
+        final JSONArray actualFiltered = AssertionUtils.filterFields(actual, blackList, whiteList);
+        final JSONArray expectedFiltered = AssertionUtils.filterFields(expected, blackList, whiteList);
 
         // Get compare mode
         final JSONCompareMode jsonCompareMode = CompareMode.getCompareMode(mode);
@@ -72,14 +72,14 @@ final class EqualityAsserter {
         // Creates common objects array of expected and actual arrays if compare mode assumes extensibility
         // of actual array. For cases when it is needed to check if actual array contains expected array.
         final JSONArray actualCommon = mode.isExtensibleArray()
-                ? getCommonArray(expectedWithoutNotNeededFields, actualWithoutNotNeededFields)
-                : actualWithoutNotNeededFields;
+                ? getCommonArray(expectedFiltered, actualFiltered)
+                : actualFiltered;
 
         // Compare
         try {
-            JSONAssert.assertEquals(expectedWithoutNotNeededFields, actualCommon, jsonCompareMode);
+            JSONAssert.assertEquals(expectedFiltered, actualCommon, jsonCompareMode);
         } catch (AssertionError error) {
-            throw new AssertionError(getErrorMessage(error, expected, actual));
+            throw new AssertionError(getErrorMessage(error, expectedFiltered, actualCommon));
         }
     }
 }

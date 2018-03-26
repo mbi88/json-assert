@@ -1,14 +1,16 @@
 package com.mbi;
 
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
+import com.github.wnameless.json.flattener.JsonFlattener;
+import com.github.wnameless.json.unflattener.JsonUnflattener;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.Set;
+import java.util.function.BiPredicate;
 
 /**
  * Utils class.
@@ -22,45 +24,67 @@ final class AssertionUtils {
     }
 
     /**
-     * Returns json object without passed fields.
+     * Returns json object without fields from black list and with only fields from white list.
      * Method supports jay way json path as a field name.
      *
-     * @param json   json with redundant fields
-     * @param fields redundant fields to be removed
+     * @param json      json with redundant fields.
+     * @param blackList redundant fields to be removed.
+     * @param whiteList fields to be kept.
      * @return result json without redundant fields
+     * @throws IllegalArgumentException if result json = {}.
      */
-    static JSONObject cutFields(final JSONObject json, final String... fields) {
-        JSONObject result = json;
-        for (String field : fields) {
-            // Json path support
-            if (field.startsWith("$")) {
-                final DocumentContext context = JsonPath.parse(json.toString());
-                final JsonPath jsonPath = JsonPath.compile(field);
-                final Map map = context.delete(jsonPath).json();
-                result = new JSONObject(map);
-            } else {
-                result.remove(field);
+    static JSONObject filterFields(final JSONObject json, final Set<String> blackList, final Set<String> whiteList) {
+        JSONObject result = new JSONObject(json.toString());
+        // Flattened json
+        final String flattenStr = JsonFlattener.flatten(result.toString());
+        final JSONObject flattenJson = new JSONObject(flattenStr);
+        // Flattened json fields
+        final Set<String> keySet = new JSONObject(flattenStr).keySet();
+
+        // Include nested json
+        final BiPredicate<String, String> predicate = (key, ignoreField) -> key.startsWith(ignoreField.concat("."))
+                || key.equals(ignoreField);
+
+        for (String key : keySet) {
+            // Remove all except white list
+            for (String whiteListField : whiteList) {
+                if (!predicate.test(key, whiteListField)) {
+                    flattenJson.remove(key);
+                }
+            }
+
+            // Remove black list
+            for (String blackListField : blackList) {
+                if (predicate.test(key, blackListField)) {
+                    flattenJson.remove(key);
+                }
             }
         }
+
+        result = new JSONObject(JsonUnflattener.unflatten(flattenJson.toString()));
+        // Check result != {}
+        Validate.isTrue(!result.toString().equals("{}"), "You removed all fields from json!"
+                + "\nOriginal: \n" + json.toString(2));
 
         return result;
     }
 
     /**
-     * Returns json array without passed fields.
+     * Returns json array without fields from black list and with only fields from white list.
      *
-     * @param json   json with redundant fields.
-     * @param fields redundant fields to be removed.
+     * @param json      json with redundant fields.
+     * @param blackList redundant fields to be removed.
+     * @param whiteList fields to be kept.
      * @return result json without redundant fields
      */
-    static JSONArray cutFields(final JSONArray json, final String... fields) {
+    static JSONArray filterFields(final JSONArray json, final Set<String> blackList, final Set<String> whiteList) {
         final JSONArray result = new JSONArray();
         for (int i = 0; i < json.length(); i++) {
             // Json array may consist of not json objects (e.g.: [1, 2, 5]).
             // In this case return original json array
             try {
                 JSONObject tmpJson = new JSONObject(json.get(i).toString());
-                tmpJson = cutFields(tmpJson, fields);
+                tmpJson = filterFields(tmpJson, blackList, whiteList);
                 result.put(tmpJson);
             } catch (JSONException je) {
                 return json;
