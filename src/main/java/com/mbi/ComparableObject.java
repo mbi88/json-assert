@@ -13,15 +13,15 @@ final class ComparableObject {
     /**
      * Object to compare.
      */
-    private final Object comparableObject;
+    private final Object object;
 
     /**
      * Constructor.
      *
-     * @param comparableObject object to compare.
+     * @param object object to compare.
      */
-    ComparableObject(final Object comparableObject) {
-        this.comparableObject = comparableObject;
+    ComparableObject(final Object object) {
+        this.object = object;
     }
 
     /**
@@ -29,8 +29,8 @@ final class ComparableObject {
      *
      * @return json object.
      */
-    JSONObject toJsonObject() {
-        return new JSONObject(this.comparableObject.toString());
+    public JSONObject toJsonObject() {
+        return new JSONObject(this.object.toString());
     }
 
     /**
@@ -40,7 +40,7 @@ final class ComparableObject {
      */
     @Override
     public int hashCode() {
-        return this.comparableObject.hashCode();
+        return this.object.hashCode();
     }
 
     /**
@@ -82,6 +82,6 @@ final class ComparableObject {
      */
     @Override
     public String toString() {
-        return this.comparableObject.toString();
+        return this.object.toString();
     }
 }

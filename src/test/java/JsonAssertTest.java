@@ -533,6 +533,32 @@ public class JsonAssertTest {
     }
 
     @Test
+    public void testCompareOnly5() {
+        JSONObject js = new JSONObject("{\"data\": {\n" +
+                "  \"id\": \"1\",\n" +
+                "  \"email\": \"m@s.com\",\n" +
+                "  \"name\": \"m\",\n" +
+                "}}");
+        JSONObject jsonObject = new JSONObject().put("data",
+                new JSONObject().put("email", "m@s.com").put("id", "1"));
+
+        assertion
+                .compareOnly("data.id", "data.email")
+                .jsonEquals(js, jsonObject);
+
+        boolean isPassed = false;
+        try {
+            assertion
+                    .compareOnly("data.name", "data.email")
+                    .jsonEquals(js, jsonObject);
+            isPassed = true;
+        } catch (AssertionError ae) {
+            assertTrue(ae.getMessage().contains("But found"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
     public void testIgnore1() {
         JSONObject json = new JSONObject()
                 .put("a", 1)
@@ -619,6 +645,22 @@ public class JsonAssertTest {
             assertTrue(ae.getMessage().contains("But found"));
         }
         assertFalse(isPassed);
+    }
+
+    @Test
+    public void testIgnore5() {
+        JSONObject js = new JSONObject("{\"data\": {\n" +
+                "  \"id\": \"1\",\n" +
+                "  \"email\": \"m@s.com\",\n" +
+                "  \"name\": \"m\",\n" +
+                "}}");
+        JSONObject jsonObject = new JSONObject().put("data",
+                new JSONObject().put("email", "m@s.com"));
+
+        assertion
+                .compareOnly("data.email", "data")
+                .ignore("data.id", "data.name")
+                .jsonEquals(js, jsonObject);
     }
 
     @Test

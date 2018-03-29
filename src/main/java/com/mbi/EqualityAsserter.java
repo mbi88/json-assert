@@ -25,7 +25,7 @@ final class EqualityAsserter {
      * @param whiteList fields to be only included on assertion.
      * @throws AssertionError if assertion failed.
      */
-    void assertEquals(
+    public void assertEquals(
             final JSONObject actual,
             final JSONObject expected,
             final CompareMode mode,
@@ -56,7 +56,7 @@ final class EqualityAsserter {
      * @param whiteList fields to be only included on assertion.
      * @throws AssertionError if assertion failed.
      */
-    void assertEquals(
+    public void assertEquals(
             final JSONArray actual,
             final JSONArray expected,
             final CompareMode mode,

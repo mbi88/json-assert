@@ -11,11 +11,54 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 /**
  * Utils class.
  */
 final class AssertionUtils {
+
+    /**
+     * Fields separator in flattened json.
+     */
+    private static final String FIELDS_SEPARATOR = ".";
+
+    /**
+     * Removes child fields from set.
+     * Example: for set [a.b, a, a.b.c, b, c.d] result will be [a, b, c.d].
+     */
+    private static Function<Set<String>, Set<String>> getParentFields = set -> {
+        final Set<String> result = new HashSet<>();
+
+        for (String key : set) {
+            // For each key split by dot
+            final String[] splitKey = key.split("\\.");
+            String parent = "";
+
+            // Get parent fields name
+            boolean hasParent = true;
+            int i = 0;
+            do {
+                parent = parent.concat(splitKey[i]).concat(FIELDS_SEPARATOR);
+                i++;
+                if (!result.contains(parent)) {
+                    hasParent = false;
+                }
+            } while (i < splitKey.length - 1 && hasParent);
+
+            // Remove last dot
+            parent = parent.substring(0, parent.length() - 1);
+
+            // Add to result only parents or add original field
+            if (set.contains(parent)) {
+                result.add(parent);
+            } else {
+                result.add(key);
+            }
+        }
+
+        return result;
+    };
 
     /**
      * Prohibits init.
@@ -33,7 +76,10 @@ final class AssertionUtils {
      * @return result json without redundant fields
      * @throws IllegalArgumentException if result json = {}.
      */
-    static JSONObject filterFields(final JSONObject json, final Set<String> blackList, final Set<String> whiteList) {
+    public static JSONObject filterFields(
+            final JSONObject json,
+            final Set<String> blackList,
+            final Set<String> whiteList) {
         JSONObject result = new JSONObject(json.toString());
         // Flattened json
         final String flattenStr = JsonFlattener.flatten(result.toString());
@@ -41,21 +87,25 @@ final class AssertionUtils {
         // Flattened json fields
         final Set<String> keySet = new JSONObject(flattenStr).keySet();
 
-        // Include nested json
-        final BiPredicate<String, String> predicate = (key, ignoreField) -> key.startsWith(ignoreField.concat("."))
-                || key.equals(ignoreField);
+        final BiPredicate<String, String> isParent = (flattenedJsonKey, ignoreField) -> flattenedJsonKey
+                .startsWith(ignoreField.concat(FIELDS_SEPARATOR)) || flattenedJsonKey.equals(ignoreField);
 
         for (String key : keySet) {
+            // Do not remove fields from white list
+            if (whiteList.contains(key)) {
+                continue;
+            }
+
             // Remove all except white list
-            for (String whiteListField : whiteList) {
-                if (!predicate.test(key, whiteListField)) {
+            for (String whiteListField : getParentFields.apply(whiteList)) {
+                if (!isParent.test(key, whiteListField)) {
                     flattenJson.remove(key);
                 }
             }
 
             // Remove black list
-            for (String blackListField : blackList) {
-                if (predicate.test(key, blackListField)) {
+            for (String blackListField : getParentFields.apply(blackList)) {
+                if (isParent.test(key, blackListField)) {
                     flattenJson.remove(key);
                 }
             }
@@ -77,7 +127,10 @@ final class AssertionUtils {
      * @param whiteList fields to be kept.
      * @return result json without redundant fields
      */
-    static JSONArray filterFields(final JSONArray json, final Set<String> blackList, final Set<String> whiteList) {
+    public static JSONArray filterFields(
+            final JSONArray json,
+            final Set<String> blackList,
+            final Set<String> whiteList) {
         final JSONArray result = new JSONArray();
         for (int i = 0; i < json.length(); i++) {
             // Json array may consist of not json objects (e.g.: [1, 2, 5]).
@@ -100,7 +153,7 @@ final class AssertionUtils {
      * @param jsonObjects json objects.
      * @return json array.
      */
-    static JSONArray objectsToArray(final JSONObject[] jsonObjects) {
+    public static JSONArray objectsToArray(final JSONObject... jsonObjects) {
         final JSONArray expectedArray = new JSONArray();
 
         for (JSONObject j : jsonObjects) {
@@ -118,7 +171,10 @@ final class AssertionUtils {
      * @param actual   actual json object.
      * @return formatted error message.
      */
-    static String getErrorMessage(final AssertionError error, final JSONObject expected, final JSONObject actual) {
+    public static String getErrorMessage(
+            final AssertionError error,
+            final JSONObject expected,
+            final JSONObject actual) {
         return formatMessage(error, expected.toString(4), actual.toString(4));
     }
 
@@ -130,7 +186,7 @@ final class AssertionUtils {
      * @param actual   actual json array.
      * @return formatted error message.
      */
-    static String getErrorMessage(final AssertionError error, final JSONArray expected, final JSONArray actual) {
+    public static String getErrorMessage(final AssertionError error, final JSONArray expected, final JSONArray actual) {
         return formatMessage(error, expected.toString(4), actual.toString(4));
     }
 
@@ -146,7 +202,6 @@ final class AssertionUtils {
         return String.format("%s%n%nExpected: %s%n%nBut found: %s", error.getMessage(), expected, actual);
     }
 
-
     /**
      * Returns json array with objects which are included in both arrays.
      *
@@ -154,7 +209,7 @@ final class AssertionUtils {
      * @param actual   actual json array.
      * @return json array with common objects.
      */
-    static JSONArray getCommonArray(final JSONArray expected, final JSONArray actual) {
+    public static JSONArray getCommonArray(final JSONArray expected, final JSONArray actual) {
         final JSONArray commonArray = new JSONArray();
 
         // Get a set of expected objects that are common for actual
