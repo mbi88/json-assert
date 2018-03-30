@@ -1,5 +1,6 @@
 package com.mbi;
 
+import com.github.wnameless.json.flattener.FlattenMode;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import org.apache.commons.lang3.Validate;
@@ -82,7 +83,9 @@ final class AssertionUtils {
             final Set<String> whiteList) {
         JSONObject result = new JSONObject(json.toString());
         // Flattened json
-        final String flattenStr = JsonFlattener.flatten(result.toString());
+        final String flattenStr = new JsonFlattener(result.toString())
+                .withFlattenMode(FlattenMode.KEEP_ARRAYS)
+                .flatten();
         final JSONObject flattenJson = new JSONObject(flattenStr);
         // Flattened json fields
         final Set<String> keySet = new JSONObject(flattenStr).keySet();
