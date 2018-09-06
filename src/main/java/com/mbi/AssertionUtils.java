@@ -17,6 +17,7 @@ import java.util.function.Function;
 /**
  * Utils class.
  */
+@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 final class AssertionUtils {
 
     /**

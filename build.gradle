@@ -1,20 +1,12 @@
 import groovy.io.FileType
 
 plugins {
-    id 'ru.vyarus.quality' version '2.4.0'
+    id 'ru.vyarus.quality' version '3.1.1'
 }
 
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'jacoco'
-
-group = 'com.mbi'
-version = '1.1.2'
-
-description = """"""
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 def suitesDir = 'src/test/resources/suites/'
 
@@ -71,9 +63,10 @@ artifacts {
 
 quality {
     checkstyle = true
-    pmd = false
+    pmd = true
     findbugs = true
     codenarc = true
+    spotbugs = false
 }
 
 check.dependsOn jacocoTestReport
