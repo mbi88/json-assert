@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 /**
@@ -28,7 +28,7 @@ final class AssertionUtils {
     /**
      * Checks if ignore field is present in flattened json.
      */
-    private static BiFunction<String, Set<String>, Boolean> isParent = (flattenedJsonKey, ignoreFields) -> ignoreFields
+    private static BiPredicate<String, Set<String>> isParent = (flattenedJsonKey, ignoreFields) -> ignoreFields
             .stream()
             .anyMatch(field -> flattenedJsonKey.startsWith(field.concat(FIELDS_SEPARATOR))
                     || flattenedJsonKey.equalsIgnoreCase(field));
@@ -106,12 +106,12 @@ final class AssertionUtils {
             }
 
             // Remove all except white list
-            if (getParentFields.apply(whiteList).size() > 0 && !isParent.apply(key, getParentFields.apply(whiteList))) {
+            if (getParentFields.apply(whiteList).size() > 0 && !isParent.test(key, getParentFields.apply(whiteList))) {
                 flattenJson.remove(key);
             }
 
             // Remove black list
-            if (getParentFields.apply(blackList).size() > 0 && isParent.apply(key, getParentFields.apply(blackList))) {
+            if (getParentFields.apply(blackList).size() > 0 && isParent.test(key, getParentFields.apply(blackList))) {
                 flattenJson.remove(key);
             }
         }
