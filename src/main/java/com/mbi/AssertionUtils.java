@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.function.BiPredicate;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -24,6 +24,14 @@ final class AssertionUtils {
      * Fields separator in flattened json.
      */
     private static final String FIELDS_SEPARATOR = ".";
+
+    /**
+     * Checks if ignore field is present in flattened json.
+     */
+    private static BiFunction<String, Set<String>, Boolean> isParent = (flattenedJsonKey, ignoreFields) -> ignoreFields
+            .stream()
+            .anyMatch(field -> flattenedJsonKey.startsWith(field.concat(FIELDS_SEPARATOR))
+                    || flattenedJsonKey.equalsIgnoreCase(field));
 
     /**
      * Removes child fields from set.
@@ -91,9 +99,6 @@ final class AssertionUtils {
         // Flattened json fields
         final Set<String> keySet = new JSONObject(flattenStr).keySet();
 
-        final BiPredicate<String, String> isParent = (flattenedJsonKey, ignoreField) -> flattenedJsonKey
-                .startsWith(ignoreField.concat(FIELDS_SEPARATOR)) || flattenedJsonKey.equals(ignoreField);
-
         for (String key : keySet) {
             // Do not remove fields from white list
             if (whiteList.contains(key)) {
@@ -101,17 +106,13 @@ final class AssertionUtils {
             }
 
             // Remove all except white list
-            for (String whiteListField : getParentFields.apply(whiteList)) {
-                if (!isParent.test(key, whiteListField)) {
-                    flattenJson.remove(key);
-                }
+            if (getParentFields.apply(whiteList).size() > 0 && !isParent.apply(key, getParentFields.apply(whiteList))) {
+                flattenJson.remove(key);
             }
 
             // Remove black list
-            for (String blackListField : getParentFields.apply(blackList)) {
-                if (isParent.test(key, blackListField)) {
-                    flattenJson.remove(key);
-                }
+            if (getParentFields.apply(blackList).size() > 0 && isParent.apply(key, getParentFields.apply(blackList))) {
+                flattenJson.remove(key);
             }
         }
 

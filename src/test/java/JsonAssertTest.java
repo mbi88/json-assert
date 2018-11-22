@@ -679,4 +679,70 @@ public class JsonAssertTest {
         }
         assertFalse(isPassed);
     }
+
+    @Test
+    public void testFailIfMissedFieldInInnerObject() {
+        boolean isPassed = false;
+        JSONArray actual = new JSONArray("[\n" +
+                "  {\n" +
+                "    \"id\": 68056,\n" +
+                "    \"accountId\": 40194,\n" +
+                "    \"sharedBy\": {\n" +
+                "      \"providerId\": 40196,\n" +
+                "      \"license\": \"Standard\",\n" +
+                "      \"status\": \"Accepted\"\n" +
+                "    }\n" +
+                "  }\n" +
+                "]");
+
+        JSONObject expected = new JSONObject("{\n" +
+                "  \"audienceId\": 4019,\n" +
+                "  \"accountId\": 40194,\n" +
+                "  \"sharedBy\": {\n" +
+                "    \"providerId\": 40196,\n" +
+                "    \"status\": \"Accepted\"\n" +
+                "  }\n" +
+                "}");
+
+        try {
+            assertion
+                    .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
+                    .compareOnly("sharedBy", "accountId")
+                    .jsonEquals(actual, new JSONArray().put(expected));
+            isPassed = true;
+        } catch (AssertionError e) {
+            assertTrue(e.getMessage().contains("Expected 1 values but got 0"));
+        }
+        assertFalse(isPassed);
+    }
+
+    @Test
+    public void testSuccessIfIgnoreMissedFieldInInnerObject() {
+        JSONArray actual = new JSONArray("[\n" +
+                "  {\n" +
+                "    \"id\": 68056,\n" +
+                "    \"accountId\": 40194,\n" +
+                "    \"sharedBy\": {\n" +
+                "      \"providerId\": 40196,\n" +
+                "      \"license\": \"Standard\",\n" +
+                "      \"status\": \"Accepted\"\n" +
+                "    }\n" +
+                "  }\n" +
+                "]");
+
+        JSONObject expected = new JSONObject("{\n" +
+                "  \"audienceId\": 4019,\n" +
+                "  \"accountId\": 40194,\n" +
+                "  \"sharedBy\": {\n" +
+                "    \"providerId\": 40196,\n" +
+                "    \"status\": \"Accepted\"\n" +
+                "  }\n" +
+                "}");
+
+        assertion
+                .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
+                .compareOnly("sharedBy", "accountId")
+                .ignore("sharedBy.license")
+                .jsonEquals(actual, new JSONArray().put(expected));
+    }
 }
