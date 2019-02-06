@@ -13,6 +13,7 @@ import static com.mbi.AssertionUtils.getErrorMessage;
 /**
  * Compares json equality.
  */
+@SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException")
 final class EqualityAsserter {
 
     /**
