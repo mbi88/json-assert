@@ -26,14 +26,6 @@ final class AssertionUtils {
     private static final String FIELDS_SEPARATOR = ".";
 
     /**
-     * Checks if ignore field is present in flattened json.
-     */
-    private static BiPredicate<String, Set<String>> isParent = (flattenedJsonKey, ignoreFields) -> ignoreFields
-            .stream()
-            .anyMatch(field -> flattenedJsonKey.startsWith(field.concat(FIELDS_SEPARATOR))
-                    || flattenedJsonKey.equalsIgnoreCase(field));
-
-    /**
      * Removes child fields from set.
      * Example: for set [a.b, a, a.b.c, b, c.d] result will be [a, b, c.d].
      */
@@ -41,23 +33,8 @@ final class AssertionUtils {
         final Set<String> result = new HashSet<>();
 
         for (String key : set) {
-            // For each key split by dot
-            final String[] splitKey = key.split("\\.");
-            String parent = "";
-
-            // Get parent fields name
-            boolean hasParent = true;
-            int i = 0;
-            do {
-                parent = parent.concat(splitKey[i]).concat(FIELDS_SEPARATOR);
-                i++;
-                if (!result.contains(parent)) {
-                    hasParent = false;
-                }
-            } while (i < splitKey.length - 1 && hasParent);
-
-            // Remove last dot
-            parent = parent.substring(0, parent.length() - 1);
+            // Get parent field name
+            String parent = key.split("\\.")[0];
 
             // Add to result only parents or add original field
             if (set.contains(parent)) {
@@ -69,6 +46,14 @@ final class AssertionUtils {
 
         return result;
     };
+
+    /**
+     * Checks if ignore field is present in flattened json.
+     */
+    private static BiPredicate<String, Set<String>> isParent = (flattenedJsonKey, ignoreFields) -> ignoreFields
+            .stream()
+            .anyMatch(field -> flattenedJsonKey.startsWith(field.concat(FIELDS_SEPARATOR))
+                    || flattenedJsonKey.equalsIgnoreCase(field));
 
     /**
      * Prohibits init.
