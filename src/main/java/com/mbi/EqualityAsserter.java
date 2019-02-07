@@ -13,7 +13,6 @@ import static com.mbi.AssertionUtils.getErrorMessage;
 /**
  * Compares json equality.
  */
-@SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException")
 final class EqualityAsserter {
 
     /**
@@ -43,7 +42,7 @@ final class EqualityAsserter {
         try {
             JSONAssert.assertEquals(expectedFiltered, actualFiltered, jsonCompareMode);
         } catch (AssertionError error) {
-            throw new AssertionError(getErrorMessage(error, expectedFiltered, actualFiltered));
+            throw new AssertionError(getErrorMessage(error, expectedFiltered, actualFiltered), error);
         }
     }
 
@@ -80,7 +79,7 @@ final class EqualityAsserter {
         try {
             JSONAssert.assertEquals(expectedFiltered, actualCommon, jsonCompareMode);
         } catch (AssertionError error) {
-            throw new AssertionError(getErrorMessage(error, expectedFiltered, actualCommon));
+            throw new AssertionError(getErrorMessage(error, expectedFiltered, actualCommon), error);
         }
     }
 }

@@ -26,14 +26,6 @@ final class AssertionUtils {
     private static final String FIELDS_SEPARATOR = ".";
 
     /**
-     * Checks if ignore field is present in flattened json.
-     */
-    private static BiPredicate<String, Set<String>> isParent = (flattenedJsonKey, ignoreFields) -> ignoreFields
-            .stream()
-            .anyMatch(field -> flattenedJsonKey.startsWith(field.concat(FIELDS_SEPARATOR))
-                    || flattenedJsonKey.equalsIgnoreCase(field));
-
-    /**
      * Removes child fields from set.
      * Example: for set [a.b, a, a.b.c, b, c.d] result will be [a, b, c.d].
      */
@@ -41,23 +33,8 @@ final class AssertionUtils {
         final Set<String> result = new HashSet<>();
 
         for (String key : set) {
-            // For each key split by dot
-            final String[] splitKey = key.split("\\.");
-            String parent = "";
-
-            // Get parent fields name
-            boolean hasParent = true;
-            int i = 0;
-            do {
-                parent = parent.concat(splitKey[i]).concat(FIELDS_SEPARATOR);
-                i++;
-                if (!result.contains(parent)) {
-                    hasParent = false;
-                }
-            } while (i < splitKey.length - 1 && hasParent);
-
-            // Remove last dot
-            parent = parent.substring(0, parent.length() - 1);
+            // Get parent field name
+            final String parent = key.split("\\.")[0];
 
             // Add to result only parents or add original field
             if (set.contains(parent)) {
@@ -69,6 +46,14 @@ final class AssertionUtils {
 
         return result;
     };
+
+    /**
+     * Checks if field is present in flattened json.
+     */
+    private static BiPredicate<String, Set<String>> isParent = (flattenedJsonKey, parentFields) -> parentFields
+            .stream()
+            .anyMatch(parentField -> flattenedJsonKey.startsWith(parentField.concat(FIELDS_SEPARATOR))
+                    || flattenedJsonKey.equalsIgnoreCase(parentField));
 
     /**
      * Prohibits init.
@@ -97,28 +82,30 @@ final class AssertionUtils {
                 .flatten();
         final JSONObject flattenJson = new JSONObject(flattenStr);
         // Flattened json fields
-        final Set<String> keySet = new JSONObject(flattenStr).keySet();
+        final Set<String> flattenedJsonKeys = new JSONObject(flattenStr).keySet();
 
-        for (String key : keySet) {
+        for (String flattenedJsonKey : flattenedJsonKeys) {
             // Do not remove fields from white list
-            if (whiteList.contains(key)) {
+            if (whiteList.contains(flattenedJsonKey)) {
                 continue;
             }
 
             // Remove all except white list
-            if (getParentFields.apply(whiteList).size() > 0 && !isParent.test(key, getParentFields.apply(whiteList))) {
-                flattenJson.remove(key);
+            if (!isParent.test(flattenedJsonKey, getParentFields.apply(whiteList))
+                    && !getParentFields.apply(whiteList).isEmpty()) {
+                flattenJson.remove(flattenedJsonKey);
             }
 
             // Remove black list
-            if (getParentFields.apply(blackList).size() > 0 && isParent.test(key, getParentFields.apply(blackList))) {
-                flattenJson.remove(key);
+            if (isParent.test(flattenedJsonKey, getParentFields.apply(blackList))
+                    && !getParentFields.apply(blackList).isEmpty()) {
+                flattenJson.remove(flattenedJsonKey);
             }
         }
 
         result = new JSONObject(JsonUnflattener.unflatten(flattenJson.toString()));
         // Check result != {}
-        Validate.isTrue(!result.toString().equals("{}"), "You removed all fields from json!"
+        Validate.isTrue(!result.similar(new JSONObject()), "You removed all fields from json!"
                 + "\nOriginal: \n" + json.toString(2));
 
         return result;

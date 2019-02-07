@@ -120,4 +120,4 @@ public class JsonAssertTest2 {
 
 ## See also
 - <a href="https://github.com/stleary/JSON-java">org.json API</a>
-- <a href="https://github.com/json-path/JsonPath">Json path</a>
+- <a href="https://github.com/wnameless/json-flattener">json-flattener</a>
