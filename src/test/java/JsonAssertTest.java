@@ -749,41 +749,4 @@ public class JsonAssertTest {
                 .ignore("sharedBy.license")
                 .jsonEquals(actual, new JSONArray().put(expected));
     }
-
-    @Test
-    public void testName() {
-        Set<String> strings = new HashSet<>();
-        strings.add("a");
-        strings.add("a.b");
-        strings.add("b");
-        strings.add("a.b.c");
-        strings.add("b.c");
-        strings.add("c.d");
-
-
-//        System.out.println(Arrays.toString(getParentFields.apply(strings).toArray()));
-    }
-
-    @Test
-    public void testName1() {
-        Set<String> strings = new HashSet<>();
-        strings.add("a");
-        strings.add("a.b");
-        strings.add("b");
-        strings.add("a.b.c");
-        strings.add("b.c");
-        strings.add("c.d");
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("a", new JSONObject()
-                .put("b", new JSONObject().put("c", 1)).put("aa", 2))
-                .put("b", new JSONObject().put("c", 2).put("bb", 2))
-                .put("c", new JSONObject().put("d", 4));
-        System.out.println(jsonObject.toString(2));
-        System.out.println(Arrays.toString(strings.toArray()));
-        assertion
-//               .compareOnly(Arrays.toString(strings.toArray()))
-               .jsonEquals(jsonObject, new JSONObject());
-
-    }
 }
