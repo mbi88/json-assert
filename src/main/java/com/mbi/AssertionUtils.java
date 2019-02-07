@@ -91,14 +91,14 @@ final class AssertionUtils {
             }
 
             // Remove all except white list
-            if (!isParent.test(flattenedJsonKey, getParentFields.apply(whiteList))
-                    && !getParentFields.apply(whiteList).isEmpty()) {
+            if (!getParentFields.apply(whiteList).isEmpty()
+                    && !isParent.test(flattenedJsonKey, getParentFields.apply(whiteList))) {
                 flattenJson.remove(flattenedJsonKey);
             }
 
             // Remove black list
-            if (isParent.test(flattenedJsonKey, getParentFields.apply(blackList))
-                    && !getParentFields.apply(blackList).isEmpty()) {
+            if (!getParentFields.apply(blackList).isEmpty()
+                    && isParent.test(flattenedJsonKey, getParentFields.apply(blackList))) {
                 flattenJson.remove(flattenedJsonKey);
             }
         }
