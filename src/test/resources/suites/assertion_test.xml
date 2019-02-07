@@ -5,6 +5,7 @@
         <classes>
             <class name="JsonAssertTest"/>
             <class name="JsonAssertArgumentsTest"/>
+            <class name="com.mbi.ComparableObjectTest"/>
         </classes>
     </test>
 </suite>
