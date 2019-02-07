@@ -34,7 +34,7 @@ final class AssertionUtils {
 
         for (String key : set) {
             // Get parent field name
-            String parent = key.split("\\.")[0];
+            final String parent = key.split("\\.")[0];
 
             // Add to result only parents or add original field
             if (set.contains(parent)) {
@@ -48,12 +48,12 @@ final class AssertionUtils {
     };
 
     /**
-     * Checks if ignore field is present in flattened json.
+     * Checks if field is present in flattened json.
      */
-    private static BiPredicate<String, Set<String>> isParent = (flattenedJsonKey, ignoreFields) -> ignoreFields
+    private static BiPredicate<String, Set<String>> isParent = (flattenedJsonKey, parentFields) -> parentFields
             .stream()
-            .anyMatch(field -> flattenedJsonKey.startsWith(field.concat(FIELDS_SEPARATOR))
-                    || flattenedJsonKey.equalsIgnoreCase(field));
+            .anyMatch(parentField -> flattenedJsonKey.startsWith(parentField.concat(FIELDS_SEPARATOR))
+                    || flattenedJsonKey.equalsIgnoreCase(parentField));
 
     /**
      * Prohibits init.
@@ -82,28 +82,30 @@ final class AssertionUtils {
                 .flatten();
         final JSONObject flattenJson = new JSONObject(flattenStr);
         // Flattened json fields
-        final Set<String> keySet = new JSONObject(flattenStr).keySet();
+        final Set<String> flattenedJsonKeys = new JSONObject(flattenStr).keySet();
 
-        for (String key : keySet) {
+        for (String flattenedJsonKey : flattenedJsonKeys) {
             // Do not remove fields from white list
-            if (whiteList.contains(key)) {
+            if (whiteList.contains(flattenedJsonKey)) {
                 continue;
             }
 
             // Remove all except white list
-            if (getParentFields.apply(whiteList).size() > 0 && !isParent.test(key, getParentFields.apply(whiteList))) {
-                flattenJson.remove(key);
+            if (!isParent.test(flattenedJsonKey, getParentFields.apply(whiteList))
+                    && !getParentFields.apply(whiteList).isEmpty()) {
+                flattenJson.remove(flattenedJsonKey);
             }
 
             // Remove black list
-            if (getParentFields.apply(blackList).size() > 0 && isParent.test(key, getParentFields.apply(blackList))) {
-                flattenJson.remove(key);
+            if (isParent.test(flattenedJsonKey, getParentFields.apply(blackList))
+                    && !getParentFields.apply(blackList).isEmpty()) {
+                flattenJson.remove(flattenedJsonKey);
             }
         }
 
         result = new JSONObject(JsonUnflattener.unflatten(flattenJson.toString()));
         // Check result != {}
-        Validate.isTrue(!result.toString().equals("{}"), "You removed all fields from json!"
+        Validate.isTrue(!result.similar(new JSONObject()), "You removed all fields from json!"
                 + "\nOriginal: \n" + json.toString(2));
 
         return result;
