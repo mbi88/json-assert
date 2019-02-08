@@ -747,7 +747,12 @@ public class JsonAssertTest {
     }
 
     @Test
-    public void testJsonObjectsNotEquals() {
+    public void testJsonObjectsNotEqualsSuccess() {
+        assertion.jsonNotEquals(new JSONObject().put("a", 1), new JSONObject().put("a", 2));
+    }
+
+    @Test
+    public void testJsonObjectsNotEqualsFailed() {
         boolean passed;
         try {
             assertion.jsonNotEquals(new JSONObject().put("a", 1), new JSONObject().put("a", 1));
@@ -760,7 +765,12 @@ public class JsonAssertTest {
     }
 
     @Test
-    public void testJsonArraysNotEquals() {
+    public void testJsonArraysNotEqualsSuccess() {
+        assertion.jsonNotEquals(new JSONArray().put(new JSONObject().put("a", 1)), new JSONArray().put(new JSONObject().put("a", 2)));
+    }
+
+    @Test
+    public void testJsonArraysNotEqualsFailed() {
         boolean passed;
         try {
             assertion.jsonNotEquals(new JSONArray().put(new JSONObject().put("a", 1)), new JSONArray().put(new JSONObject().put("a", 1)));
