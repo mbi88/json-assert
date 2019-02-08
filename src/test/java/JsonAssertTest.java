@@ -770,6 +770,24 @@ public class JsonAssertTest {
     }
 
     @Test
+    public void testJsonArraysNotEqualsFailedWithExtensibleArray() {
+        JSONArray jsonArray1 = new JSONArray().put(new JSONObject().put("a", 1));
+        JSONArray jsonArray2 = new JSONArray().put(new JSONObject().put("a", 2)).put(new JSONObject().put("a", 1));
+
+        boolean passed;
+        try {
+            assertion
+                    .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
+                    .jsonNotEquals(jsonArray2, jsonArray1);
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+            assertTrue(e.getMessage().contains("Objects are equal!"));
+        }
+        assertFalse(passed);
+    }
+
+    @Test
     public void testJsonArraysNotEqualsFailed() {
         boolean passed;
         try {
