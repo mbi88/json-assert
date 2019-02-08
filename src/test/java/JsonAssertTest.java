@@ -745,4 +745,40 @@ public class JsonAssertTest {
                 .ignore("sharedBy.license")
                 .jsonEquals(actual, new JSONArray().put(expected));
     }
+
+    @Test
+    public void testJsonObjectsNotEqualsSuccess() {
+        assertion.jsonNotEquals(new JSONObject().put("a", 1), new JSONObject().put("a", 2));
+    }
+
+    @Test
+    public void testJsonObjectsNotEqualsFailed() {
+        boolean passed;
+        try {
+            assertion.jsonNotEquals(new JSONObject().put("a", 1), new JSONObject().put("a", 1));
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+            assertTrue(e.getMessage().contains("Objects are equal!"));
+        }
+        assertFalse(passed);
+    }
+
+    @Test
+    public void testJsonArraysNotEqualsSuccess() {
+        assertion.jsonNotEquals(new JSONArray().put(new JSONObject().put("a", 1)), new JSONArray().put(new JSONObject().put("a", 2)));
+    }
+
+    @Test
+    public void testJsonArraysNotEqualsFailed() {
+        boolean passed;
+        try {
+            assertion.jsonNotEquals(new JSONArray().put(new JSONObject().put("a", 1)), new JSONArray().put(new JSONObject().put("a", 1)));
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+            assertTrue(e.getMessage().contains("Objects are equal!"));
+        }
+        assertFalse(passed);
+    }
 }
