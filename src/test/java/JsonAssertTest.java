@@ -799,4 +799,21 @@ public class JsonAssertTest {
         }
         assertFalse(passed);
     }
+
+    @Test
+    public void testEqualityNotDependsOnInnerArraySortOrderOnExtensibleArrayMode() {
+        JSONArray jj1 = new JSONArray();
+        jj1.put("daec7f0f-f077-415d-82d2-bd55d4e9c4cb").put("70fd7d50-c784-489c-8152-1ec5c932a08b");
+        JSONArray jj2 = new JSONArray();
+        jj2.put("70fd7d50-c784-489c-8152-1ec5c932a08b").put("daec7f0f-f077-415d-82d2-bd55d4e9c4cb");
+
+        JSONObject jsonObject1 = new JSONObject();
+        jsonObject1.put("users", jj1);
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("users", jj2);
+
+        assertion
+                .withMode(CompareMode.NOT_ORDERED_EXTENSIBLE_ARRAY)
+                .jsonEquals(new JSONArray().put(jsonObject2), new JSONArray().put(jsonObject1));
+    }
 }
