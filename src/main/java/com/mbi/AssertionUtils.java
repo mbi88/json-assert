@@ -3,14 +3,14 @@ package com.mbi;
 import com.github.wnameless.json.flattener.FlattenMode;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
@@ -26,34 +26,68 @@ final class AssertionUtils {
     private static final String FIELDS_SEPARATOR = ".";
 
     /**
-     * Removes child fields from set.
-     * Example: for set [a.b, a, a.b.c, b, c.d] result will be [a, b, c.d].
+     * Checks if field is present in flattened json.
      */
-    private static Function<Set<String>, Set<String>> getParentFields = set -> {
+    private static BiPredicate<String, Set<String>> testKeyIsParent = (flattenedJsonKey, parentFields) -> parentFields
+            .stream()
+            .anyMatch(parentField -> flattenedJsonKey.startsWith(parentField.concat(FIELDS_SEPARATOR))
+                    || flattenedJsonKey.equalsIgnoreCase(parentField));
+
+    /**
+     * Split field by fields separator.
+     */
+    private static Function<String, String[]> splitKeys = s -> s.split("\\.");
+
+    /**
+     * Returns children of parent from set.
+     */
+    private static BiFunction<Set<String>, String, List<String>> getChildren = (parentFields, parent) -> {
+        final List<String> list = new ArrayList<>();
+        parentFields.forEach(s -> {
+            if (s.startsWith(parent)) {
+                list.add(s);
+            }
+        });
+        return list;
+    };
+
+    private static Function<List<String>, Set<String>> getParentInList = children -> {
         final Set<String> result = new HashSet<>();
 
-        for (String key : set) {
-            // Get parent field name
-            final String parent = key.split("\\.")[0];
+        int minDotsCount = Integer.MAX_VALUE;
+        for (String s : children) {
+            minDotsCount = Math.min(StringUtils.countMatches(s, FIELDS_SEPARATOR), minDotsCount);
+        }
 
-            // Add to result only parents or add original field
-            if (set.contains(parent)) {
-                result.add(parent);
-            } else {
-                result.add(key);
+        for (String child : children) {
+            final String[] keys = splitKeys.apply(child);
+            final StringBuilder value = new StringBuilder();
+
+            for (int i = 0; i <= minDotsCount; i++) {
+                value.append(keys[i]).append(FIELDS_SEPARATOR);
             }
+
+            // Remove last field separator
+            final String v = value.toString().substring(0, value.toString().length() - 1);
+            result.add(v);
         }
 
         return result;
     };
 
     /**
-     * Checks if field is present in flattened json.
+     * Removes child fields from set.
+     * Example: for set [a.b, a, a.b.c, b, c.d] result will be [a, b, c.d].
      */
-    private static BiPredicate<String, Set<String>> isParent = (flattenedJsonKey, parentFields) -> parentFields
-            .stream()
-            .anyMatch(parentField -> flattenedJsonKey.startsWith(parentField.concat(FIELDS_SEPARATOR))
-                    || flattenedJsonKey.equalsIgnoreCase(parentField));
+    private static Function<Set<String>, Set<String>> getParentFields = set -> {
+        final Set<String> result = new HashSet<>();
+        set.forEach(key -> {
+            final String parent = splitKeys.apply(key)[0];
+            final List<String> children = getChildren.apply(set, parent);
+            result.addAll(getParentInList.apply(children));
+        });
+        return result;
+    };
 
     /**
      * Prohibits init.
@@ -92,13 +126,13 @@ final class AssertionUtils {
 
             // Remove all except white list
             if (!getParentFields.apply(whiteList).isEmpty()
-                    && !isParent.test(flattenedJsonKey, getParentFields.apply(whiteList))) {
+                    && !testKeyIsParent.test(flattenedJsonKey, getParentFields.apply(whiteList))) {
                 flattenJson.remove(flattenedJsonKey);
             }
 
             // Remove black list
             if (!getParentFields.apply(blackList).isEmpty()
-                    && isParent.test(flattenedJsonKey, getParentFields.apply(blackList))) {
+                    && testKeyIsParent.test(flattenedJsonKey, getParentFields.apply(blackList))) {
                 flattenJson.remove(flattenedJsonKey);
             }
         }
