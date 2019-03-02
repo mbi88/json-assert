@@ -375,7 +375,6 @@ public class JsonAssertTest {
         assertion.jsonEquals(a1, a2);
     }
 
-
     @Test
     public void testNotEqualArraysNotOfJsonObjects() {
         boolean isPassed = false;

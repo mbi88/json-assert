@@ -54,7 +54,7 @@ public final class JsonAssert implements Assert {
     @Override
     public void jsonEquals(final JSONObject actual, final JSONObject expected) {
         try {
-            final EqualityAsserter asserter = new EqualityAsserter();
+            final var asserter = new EqualityAsserter();
             asserter.assertEquals(actual, expected, mode, blackList, whiteList);
         } finally {
             // Set default mode, ignore
@@ -65,7 +65,7 @@ public final class JsonAssert implements Assert {
     @Override
     public void jsonEquals(final JSONArray actual, final JSONArray expected) {
         try {
-            final EqualityAsserter asserter = new EqualityAsserter();
+            final var asserter = new EqualityAsserter();
             asserter.assertEquals(actual, expected, mode, blackList, whiteList);
         } finally {
             // Set default mode, ignore
@@ -76,7 +76,7 @@ public final class JsonAssert implements Assert {
     @Override
     public void jsonEquals(final JSONArray actual, final JSONObject... expected) {
         try {
-            final EqualityAsserter asserter = new EqualityAsserter();
+            final var asserter = new EqualityAsserter();
             asserter.assertEquals(actual, objectsToArray(expected), mode, blackList, whiteList);
         } finally {
             // Set default mode, ignore
@@ -87,7 +87,7 @@ public final class JsonAssert implements Assert {
     @Override
     public void jsonEquals(final Response actual, final JSONArray expected) {
         try {
-            final EqualityAsserter asserter = new EqualityAsserter();
+            final var asserter = new EqualityAsserter();
             asserter.assertEquals(new JSONArray(actual.asString()), expected, mode, blackList, whiteList);
         } finally {
             // Set default mode, ignore
@@ -98,7 +98,7 @@ public final class JsonAssert implements Assert {
     @Override
     public void jsonEquals(final Response actual, final JSONObject expected) {
         try {
-            final EqualityAsserter asserter = new EqualityAsserter();
+            final var asserter = new EqualityAsserter();
             asserter.assertEquals(new JSONObject(actual.asString()), expected, mode, blackList, whiteList);
         } finally {
             // Set default mode, ignore
@@ -109,7 +109,7 @@ public final class JsonAssert implements Assert {
     @Override
     public void jsonEquals(final Response actual, final JSONObject... expected) {
         try {
-            final EqualityAsserter asserter = new EqualityAsserter();
+            final var asserter = new EqualityAsserter();
             asserter.assertEquals(new JSONArray(actual.asString()), objectsToArray(expected),
                     mode, blackList, whiteList);
         } finally {
@@ -121,7 +121,7 @@ public final class JsonAssert implements Assert {
     @Override
     public void jsonNotEquals(final JSONObject actual, final JSONObject expected) {
         try {
-            final EqualityAsserter asserter = new EqualityAsserter();
+            final var asserter = new EqualityAsserter();
             asserter.assertNotEquals(actual, expected, mode, blackList, whiteList);
         } finally {
             // Set default mode, ignore
@@ -132,7 +132,7 @@ public final class JsonAssert implements Assert {
     @Override
     public void jsonNotEquals(final JSONArray actual, final JSONArray expected) {
         try {
-            final EqualityAsserter asserter = new EqualityAsserter();
+            final var asserter = new EqualityAsserter();
             asserter.assertNotEquals(actual, expected, mode, blackList, whiteList);
         } finally {
             // Set default mode, ignore

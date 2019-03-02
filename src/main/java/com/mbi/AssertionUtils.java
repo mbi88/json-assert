@@ -51,17 +51,33 @@ final class AssertionUtils {
         return list;
     };
 
+    /**
+     * Returns min dots count in string elements of list.
+     * ["as.ew.er", "ds.sd', "asd.a"] -> 1
+     * ["as.ew.er", "ds.sd', "asd"] -> 0
+     */
+    private static Function<List<String>, Integer> getMinDotsCount = children -> {
+        final var ref = new Object() {
+            private int minDotsCount = Integer.MAX_VALUE;
+
+            public void setMinDotsCount(final int minDotsCount) {
+                this.minDotsCount = minDotsCount;
+            }
+        };
+
+        children.forEach(child ->
+                ref.setMinDotsCount(Math.min(StringUtils.countMatches(child, FIELDS_SEPARATOR), ref.minDotsCount)));
+
+        return ref.minDotsCount;
+    };
+
     private static Function<List<String>, Set<String>> getParentInList = children -> {
-        final Set<String> result = new HashSet<>();
+        final var result = new HashSet<String>();
+        final int minDotsCount = getMinDotsCount.apply(children);
 
-        int minDotsCount = Integer.MAX_VALUE;
-        for (String s : children) {
-            minDotsCount = Math.min(StringUtils.countMatches(s, FIELDS_SEPARATOR), minDotsCount);
-        }
-
-        for (String child : children) {
-            final String[] keys = splitKeys.apply(child);
-            final StringBuilder value = new StringBuilder();
+        for (var child : children) {
+            final var keys = splitKeys.apply(child);
+            final var value = new StringBuilder();
 
             for (int i = 0; i <= minDotsCount; i++) {
                 value.append(keys[i]).append(FIELDS_SEPARATOR);
@@ -79,11 +95,12 @@ final class AssertionUtils {
      * Removes child fields from set.
      * Example: for set [a.b, a, a.b.c, b, c.d] result will be [a, b, c.d].
      */
-    private static Function<Set<String>, Set<String>> getParentFields = set -> {
-        final Set<String> result = new HashSet<>();
+    @SuppressWarnings("PMD.AvoidProtectedFieldInFinalClass")
+    protected static Function<Set<String>, Set<String>> getParentFields = set -> {
+        final var result = new HashSet<String>();
         set.forEach(key -> {
-            final String parent = splitKeys.apply(key)[0];
-            final List<String> children = getChildren.apply(set, parent);
+            final var parent = splitKeys.apply(key)[0];
+            final var children = getChildren.apply(set, parent);
             result.addAll(getParentInList.apply(children));
         });
         return result;
@@ -105,20 +122,18 @@ final class AssertionUtils {
      * @return result json without redundant fields
      * @throws IllegalArgumentException if result json = {}.
      */
-    public static JSONObject filterFields(
-            final JSONObject json,
-            final Set<String> blackList,
-            final Set<String> whiteList) {
-        JSONObject result = new JSONObject(json.toString());
+    public static JSONObject filterFields(final JSONObject json, final Set<String> blackList,
+                                          final Set<String> whiteList) {
+        var result = new JSONObject(json.toString());
         // Flattened json
-        final String flattenStr = new JsonFlattener(result.toString())
+        final var flattenStr = new JsonFlattener(result.toString())
                 .withFlattenMode(FlattenMode.KEEP_ARRAYS)
                 .flatten();
-        final JSONObject flattenJson = new JSONObject(flattenStr);
+        final var flattenJson = new JSONObject(flattenStr);
         // Flattened json fields
-        final Set<String> flattenedJsonKeys = new JSONObject(flattenStr).keySet();
+        final var flattenedJsonKeys = new JSONObject(flattenStr).keySet();
 
-        for (String flattenedJsonKey : flattenedJsonKeys) {
+        for (var flattenedJsonKey : flattenedJsonKeys) {
             // Do not remove fields from white list
             if (whiteList.contains(flattenedJsonKey)) {
                 continue;
@@ -153,16 +168,14 @@ final class AssertionUtils {
      * @param whiteList fields to be kept.
      * @return result json without redundant fields
      */
-    public static JSONArray filterFields(
-            final JSONArray json,
-            final Set<String> blackList,
-            final Set<String> whiteList) {
-        final JSONArray result = new JSONArray();
+    public static JSONArray filterFields(final JSONArray json, final Set<String> blackList,
+                                         final Set<String> whiteList) {
+        final var result = new JSONArray();
         for (int i = 0; i < json.length(); i++) {
             // Json array may consist of not json objects (e.g.: [1, 2, 5]).
             // In this case return original json array
             try {
-                JSONObject tmpJson = new JSONObject(json.get(i).toString());
+                var tmpJson = new JSONObject(json.get(i).toString());
                 tmpJson = filterFields(tmpJson, blackList, whiteList);
                 result.put(tmpJson);
             } catch (JSONException je) {
@@ -180,9 +193,9 @@ final class AssertionUtils {
      * @return json array.
      */
     public static JSONArray objectsToArray(final JSONObject... jsonObjects) {
-        final JSONArray expectedArray = new JSONArray();
+        final var expectedArray = new JSONArray();
 
-        for (JSONObject j : jsonObjects) {
+        for (var j : jsonObjects) {
             expectedArray.put(j);
         }
 
@@ -197,10 +210,8 @@ final class AssertionUtils {
      * @param actual   actual json object.
      * @return formatted error message.
      */
-    public static String getErrorMessage(
-            final AssertionError error,
-            final JSONObject expected,
-            final JSONObject actual) {
+    public static String getErrorMessage(final AssertionError error, final JSONObject expected,
+                                         final JSONObject actual) {
         return formatMessage(error, expected.toString(4), actual.toString(4));
     }
 
@@ -236,21 +247,21 @@ final class AssertionUtils {
      * @return json array with common objects.
      */
     public static JSONArray getCommonArray(final JSONArray expected, final JSONArray actual) {
-        final JSONArray commonArray = new JSONArray();
+        final var commonArray = new JSONArray();
 
         // Get a set of expected objects that are common for actual
-        final HashSet<ComparableObject> commonSet = new LinkedHashSet<>();
-        for (Object eo : expected) {
-            final ComparableObject expectedJson = new ComparableObject(eo);
-            for (Object ao : actual) {
-                final ComparableObject actualJson = new ComparableObject(ao);
+        final var commonSet = new LinkedHashSet<ComparableObject>();
+        for (var expectedObj : expected) {
+            final var expectedJson = new ComparableObject(expectedObj);
+            for (var actualObj : actual) {
+                final var actualJson = new ComparableObject(actualObj);
                 if (expectedJson.equals(actualJson)) {
                     commonSet.add(expectedJson);
                 }
             }
         }
 
-        for (ComparableObject o : commonSet) {
+        for (var o : commonSet) {
             commonArray.put(o.toJsonObject());
         }
 
