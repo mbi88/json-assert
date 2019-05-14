@@ -72,7 +72,7 @@ final class AssertionUtils {
     };
 
     private static Function<List<String>, Set<String>> getParentInList = children -> {
-        final var result = new HashSet<String>();
+        final Set<String> result = new HashSet<>();
         final int minDotsCount = getMinDotsCount.apply(children);
 
         for (var child : children) {
@@ -97,7 +97,7 @@ final class AssertionUtils {
      */
     @SuppressWarnings("PMD.AvoidProtectedFieldInFinalClass")
     protected static Function<Set<String>, Set<String>> getParentFields = set -> {
-        final var result = new HashSet<String>();
+        final Set<String> result = new HashSet<>();
         set.forEach(key -> {
             final var parent = splitKeys.apply(key)[0];
             final var children = getChildren.apply(set, parent);
@@ -250,7 +250,7 @@ final class AssertionUtils {
         final var commonArray = new JSONArray();
 
         // Get a set of expected objects that are common for actual
-        final var commonSet = new LinkedHashSet<ComparableObject>();
+        final Set<ComparableObject> commonSet = new LinkedHashSet<>();
         for (var expectedObj : expected) {
             final var expectedJson = new ComparableObject(expectedObj);
             for (var actualObj : actual) {
