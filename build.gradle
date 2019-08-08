@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'org.json', name: 'json', version: '20180813'
+    implementation group: 'org.json', name: 'json', version: '20190722'
     implementation group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
     implementation group: 'org.testng', name: 'testng', version: '6.14.3'
     implementation group: 'io.rest-assured', name: 'rest-assured', version: '4.0.0'
