@@ -10,13 +10,15 @@ apply plugin: 'jacoco'
 def suitesDir = 'src/test/resources/suites/'
 
 repositories {
-    maven { url "http://repo.maven.apache.org/maven2" }
+    mavenCentral()
+    jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     implementation group: 'org.json', name: 'json', version: '20190722'
     implementation group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
-    implementation group: 'org.testng', name: 'testng', version: '7.1.0'
+    implementation group: 'org.testng', name: 'testng', version: '7.2.0'
     implementation group: 'io.rest-assured', name: 'rest-assured', version: '4.1.2'
     implementation group: 'com.github.wnameless', name: 'json-flattener', version: '0.7.1'
 }
