@@ -1,7 +1,7 @@
 import groovy.io.FileType
 
 plugins {
-    id 'ru.vyarus.quality' version '4.2.1'
+    id 'ru.vyarus.quality' version '4.2.2'
 }
 
 apply plugin: 'java-library'
