@@ -18,7 +18,7 @@ repositories {
 dependencies {
     implementation group: 'org.json', name: 'json', version: '20201115'
     implementation group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
-    implementation group: 'org.testng', name: 'testng', version: '7.3.0'
+    implementation group: 'org.testng', name: 'testng', version: '7.4.0'
     implementation group: 'io.rest-assured', name: 'rest-assured', version: '4.3.3'
     implementation group: 'com.github.wnameless', name: 'json-flattener', version: '0.7.1'
 }
