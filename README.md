@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mbi88/json-assert.svg?branch=master)](https://travis-ci.org/mbi88/json-assert)
+[![Build Status](https://app.travis-ci.com/mbi88/json-assert.svg?branch=master)](https://app.travis-ci.com/mbi88/json-assert)
 [![codecov](https://codecov.io/gh/mbi88/json-assert/branch/master/graph/badge.svg)](https://codecov.io/gh/mbi88/json-assert)
 [![jitpack](https://jitpack.io/v/mbi88/json-assert.svg)](https://jitpack.io/#mbi88/json-assert)
 
