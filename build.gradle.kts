@@ -1,7 +1,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    id("ru.vyarus.quality").version("4.5.0")
+    id("ru.vyarus.quality").version("4.7.0")
     id("java-library")
     id("jacoco")
 }
