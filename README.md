@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/mbi88/json-assert.svg?branch=master)](https://app.travis-ci.com/mbi88/json-assert)
+[![Java CI with Gradle](https://github.com/mbi88/json-assert/actions/workflows/gradle.yml/badge.svg)](https://github.com/mbi88/json-assert/actions/workflows/gradle.yml)
 [![codecov](https://codecov.io/gh/mbi88/json-assert/branch/master/graph/badge.svg)](https://codecov.io/gh/mbi88/json-assert)
 [![jitpack](https://jitpack.io/v/mbi88/json-assert.svg)](https://jitpack.io/#mbi88/json-assert)
 
