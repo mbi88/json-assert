@@ -28,7 +28,8 @@ final class AssertionUtils {
     /**
      * Checks if field is present in flattened json.
      */
-    private static BiPredicate<String, Set<String>> testKeyIsParent = (flattenedJsonKey, parentFields) -> parentFields
+    private static final BiPredicate<String, Set<String>> TEST_KEY_IS_PARENT = (flattenedJsonKey, parentFields)
+            -> parentFields
             .stream()
             .anyMatch(parentField -> flattenedJsonKey.startsWith(parentField.concat(FIELDS_SEPARATOR))
                     || flattenedJsonKey.equalsIgnoreCase(parentField));
@@ -36,12 +37,12 @@ final class AssertionUtils {
     /**
      * Split field by fields separator.
      */
-    private static Function<String, String[]> splitKeys = s -> s.split("\\.");
+    private static final Function<String, String[]> SPLIT_KEYS = s -> s.split("\\.");
 
     /**
      * Returns children of parent from set.
      */
-    private static BiFunction<Set<String>, String, List<String>> getChildren = (parentFields, parent) -> {
+    private static final BiFunction<Set<String>, String, List<String>> GET_CHILDREN = (parentFields, parent) -> {
         final List<String> list = new ArrayList<>();
         parentFields.forEach(s -> {
             if (s.startsWith(parent)) {
@@ -56,7 +57,7 @@ final class AssertionUtils {
      * ["as.ew.er", "ds.sd', "asd.a"] -> 1
      * ["as.ew.er", "ds.sd', "asd"] -> 0
      */
-    private static Function<List<String>, Integer> getMinDotsCount = children -> {
+    private static final Function<List<String>, Integer> GET_MIN_DOTS_COUNT = children -> {
         final var ref = new Object() {
             private int minDotsCount = Integer.MAX_VALUE;
 
@@ -71,12 +72,12 @@ final class AssertionUtils {
         return ref.minDotsCount;
     };
 
-    private static Function<List<String>, Set<String>> getParentInList = children -> {
+    private static final Function<List<String>, Set<String>> GET_PARENT_IN_LIST = children -> {
         final Set<String> result = new HashSet<>();
-        final int minDotsCount = getMinDotsCount.apply(children);
+        final int minDotsCount = GET_MIN_DOTS_COUNT.apply(children);
 
         for (var child : children) {
-            final var keys = splitKeys.apply(child);
+            final var keys = SPLIT_KEYS.apply(child);
             final var value = new StringBuilder();
 
             for (int i = 0; i <= minDotsCount; i++) {
@@ -84,7 +85,7 @@ final class AssertionUtils {
             }
 
             // Remove last field separator
-            final String v = value.toString().substring(0, value.toString().length() - 1);
+            final String v = value.substring(0, value.length() - 1);
             result.add(v);
         }
 
@@ -96,12 +97,12 @@ final class AssertionUtils {
      * Example: for set [a.b, a, a.b.c, b, c.d] result will be [a, b, c.d].
      */
     @SuppressWarnings("PMD.AvoidProtectedFieldInFinalClass")
-    protected static Function<Set<String>, Set<String>> getParentFields = set -> {
+    private static final Function<Set<String>, Set<String>> GET_PARENT_FIELDS = set -> {
         final Set<String> result = new HashSet<>();
         set.forEach(key -> {
-            final var parent = splitKeys.apply(key)[0];
-            final var children = getChildren.apply(set, parent);
-            result.addAll(getParentInList.apply(children));
+            final var parent = SPLIT_KEYS.apply(key)[0];
+            final var children = GET_CHILDREN.apply(set, parent);
+            result.addAll(GET_PARENT_IN_LIST.apply(children));
         });
         return result;
     };
@@ -127,7 +128,7 @@ final class AssertionUtils {
         var result = new JSONObject(json.toString());
         // Flattened json
         final var flattenStr = new JsonFlattener(result.toString())
-                .withFlattenMode(FlattenMode.KEEP_ARRAYS)
+                .withFlattenMode(FlattenMode.NORMAL)
                 .flatten();
         final var flattenJson = new JSONObject(flattenStr);
         // Flattened json fields
@@ -140,14 +141,14 @@ final class AssertionUtils {
             }
 
             // Remove all except white list
-            if (!getParentFields.apply(whiteList).isEmpty()
-                    && !testKeyIsParent.test(flattenedJsonKey, getParentFields.apply(whiteList))) {
+            if (!GET_PARENT_FIELDS.apply(whiteList).isEmpty()
+                    && !TEST_KEY_IS_PARENT.test(flattenedJsonKey, GET_PARENT_FIELDS.apply(whiteList))) {
                 flattenJson.remove(flattenedJsonKey);
             }
 
             // Remove black list
-            if (!getParentFields.apply(blackList).isEmpty()
-                    && testKeyIsParent.test(flattenedJsonKey, getParentFields.apply(blackList))) {
+            if (!GET_PARENT_FIELDS.apply(blackList).isEmpty()
+                    && TEST_KEY_IS_PARENT.test(flattenedJsonKey, GET_PARENT_FIELDS.apply(blackList))) {
                 flattenJson.remove(flattenedJsonKey);
             }
         }

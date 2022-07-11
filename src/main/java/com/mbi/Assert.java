@@ -64,7 +64,7 @@ public interface Assert {
      * CompareMode mode = CompareMode.NOT_ORDERED;
      * String[] blackList = new String[]{""};
      * String[] whiteList = new String[]{""};
-     * <p>
+     * </p>
      *
      * @param actual   actual object {@link org.json.JSONObject}
      * @param expected expected object {@link org.json.JSONObject}
@@ -79,7 +79,7 @@ public interface Assert {
      * CompareMode mode = CompareMode.NOT_ORDERED;
      * String[] blackList = new String[]{""};
      * String[] whiteList = new String[]{""};
-     * <p>
+     * </p>
      *
      * @param actual   actual object {@link org.json.JSONArray}
      * @param expected expected object {@link org.json.JSONArray}
@@ -94,7 +94,7 @@ public interface Assert {
      * CompareMode mode = CompareMode.NOT_ORDERED;
      * String[] blackList = new String[]{""};
      * String[] whiteList = new String[]{""};
-     * <p>
+     * </p>
      *
      * @param actual   actual object {@link org.json.JSONArray}
      * @param expected expected object {@link org.json.JSONObject}
@@ -109,7 +109,7 @@ public interface Assert {
      * CompareMode mode = CompareMode.NOT_ORDERED;
      * String[] blackList = new String[]{""};
      * String[] whiteList = new String[]{""};
-     * <p>
+     * </p>
      *
      * @param actual   actual object {@link io.restassured.response.Response}
      * @param expected expected object {@link org.json.JSONArray}
@@ -124,7 +124,7 @@ public interface Assert {
      * CompareMode mode = CompareMode.NOT_ORDERED;
      * String[] blackList = new String[]{""};
      * String[] whiteList = new String[]{""};
-     * <p>
+     * </p>
      *
      * @param actual   actual object {@link io.restassured.response.Response}
      * @param expected expected object {@link org.json.JSONObject}
@@ -139,7 +139,7 @@ public interface Assert {
      * CompareMode mode = CompareMode.NOT_ORDERED;
      * String[] blackList = new String[]{""};
      * String[] whiteList = new String[]{""};
-     * <p>
+     * </p>
      *
      * @param actual   actual object {@link io.restassured.response.Response}
      * @param expected expected object {@link org.json.JSONObject}
@@ -154,7 +154,7 @@ public interface Assert {
      * CompareMode mode = CompareMode.NOT_ORDERED;
      * String[] blackList = new String[]{""};
      * String[] whiteList = new String[]{""};
-     * <p>
+     * </p>
      *
      * @param actual   actual object {@link org.json.JSONObject}
      * @param expected expected object {@link org.json.JSONObject}
@@ -169,7 +169,7 @@ public interface Assert {
      * CompareMode mode = CompareMode.NOT_ORDERED;
      * String[] blackList = new String[]{""};
      * String[] whiteList = new String[]{""};
-     * <p>
+     * </p>
      *
      * @param actual   actual object {@link org.json.JSONArray}
      * @param expected expected object {@link org.json.JSONArray}

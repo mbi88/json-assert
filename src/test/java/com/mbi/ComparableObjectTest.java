@@ -8,27 +8,28 @@ import static org.testng.Assert.*;
 public class ComparableObjectTest {
 
     private final JSONObject json = new JSONObject().put("a", 1);
-    private ComparableObject comparableObject = new ComparableObject(json);
+    private final ComparableObject comparableObject = new ComparableObject(json);
 
     @Test
     public void testObjectEquals() {
-        assertTrue(comparableObject.equals(new ComparableObject(json)));
+        assertEquals(new ComparableObject(json), comparableObject);
     }
 
     @Test
     public void testNotEqualsIfPassedInappropriateInstance() {
-        assertFalse(comparableObject.equals(json));
+        assertNotEquals(json, comparableObject);
     }
 
     @Test
     public void testNotEqualsIfIncorrectFieldType() {
-        assertFalse(comparableObject.equals(new ComparableObject(new JSONObject().put("a", "1"))));
+        assertNotEquals(new ComparableObject(new JSONObject().put("a", "1")), comparableObject);
     }
 
     @Test
     public void testCantPassNull() {
         boolean passed;
         try {
+            comparableObject.equals(null);
             comparableObject.equals(null);
             passed = true;
         } catch (NullPointerException e) {

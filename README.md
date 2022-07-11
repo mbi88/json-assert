@@ -115,6 +115,18 @@ public class JsonAssertTest2 {
                 .withMode(CompareMode.ORDERED_EXTENSIBLE_ARRAY)
                 .jsonEquals(actual, expected);
     }
+    
+    @Test
+    public void test3() {
+        JSONObject json1 = new JSONObject("""
+                {"data": [{"a":1, "b":2}, {"a":1, "b":2}]}""");
+        JSONObject json2 = new JSONObject("""
+                {"data": [{"a":1, "b":1}, {"a":1, "b":2}]}""");
+
+        assertion
+                .ignore("data[0].b")
+                .jsonEquals(json1, json2);
+    }
 }
 ```
 
