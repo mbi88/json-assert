@@ -32,10 +32,11 @@ final class AssertionUtils {
             -> parentFields
             .stream()
             .anyMatch(parentField -> flattenedJsonKey.startsWith(parentField.concat(FIELDS_SEPARATOR))
-                    || flattenedJsonKey.equalsIgnoreCase(parentField));
+                    || flattenedJsonKey.equalsIgnoreCase(parentField)
+                    || parentFieldIsArray(parentField, flattenedJsonKey));
 
     /**
-     * Split field by fields separator.
+     * Split field by field separator.
      */
     private static final Function<String, String[]> SPLIT_KEYS = s -> s.split("\\.");
 
@@ -267,5 +268,13 @@ final class AssertionUtils {
         }
 
         return commonArray;
+    }
+
+    /**
+     * If whole array need to be skipped.
+     */
+    private static boolean parentFieldIsArray(final String parentField, final String flattenedJsonKey) {
+        final var flattenedArrayFieldRegex = "^\\w+\\[\\d+]$";
+        return !parentField.matches(flattenedArrayFieldRegex) && flattenedJsonKey.matches(flattenedArrayFieldRegex);
     }
 }

@@ -889,4 +889,85 @@ public class JsonAssertTest {
                 .ignore("data[0]")
                 .jsonEquals(json1, json2);
     }
+
+    @Test
+    public void testFailIfArraysNotEqual() {
+        var json1 = new JSONObject("""
+                {"data": [1, 2]}""");
+        var json2 = new JSONObject("""
+                {"data": [3, 2]}""");
+
+        var passed = true;
+        try {
+            assertion
+                    .ignore("data[1]")
+                    .jsonEquals(json1, json2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+
+        assertFalse(passed);
+    }
+
+    @Test
+    public void testCanCompareOnlyFieldsInArray() {
+        var json1 = new JSONObject("""
+                {"data": [1, 2]}""");
+        var json2 = new JSONObject("""
+                {"data": [3, 2]}""");
+
+        assertion
+                .compareOnly("data[1]")
+                .jsonEquals(json1, json2);
+    }
+
+    @Test
+    public void testFailIfArraysNotEqualOnCompareOnly() {
+        var json1 = new JSONObject("""
+                {"data": [1, 2]}""");
+        var json2 = new JSONObject("""
+                {"data": [3, 2]}""");
+
+        var passed = true;
+        try {
+            assertion
+                    .compareOnly("data[0]")
+                    .jsonEquals(json1, json2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+
+        assertFalse(passed);
+    }
+
+    @Test
+    public void testSkipWholeArray() {
+        var actual = new JSONArray("""
+                [{"incomeBrackets":[0,20000,40000,75000,100000],"countryCode":"FI"},{"incomeBrackets":[0,20000,40000,75000,100000],"countryCode":"GB"}]""");
+        var expected = new JSONArray("""
+                [{"countryCode":"FI"},{"countryCode":"GB"}]""");
+
+        assertion
+                .ignore("incomeBrackets")
+                .jsonEquals(actual, expected);
+    }
+
+    @Test
+    public void testComparisonFailedIfCompareNoEqualArrays() {
+        var actual = new JSONArray("""
+                [{"incomeBrackets":[0,20000,40000,75000,100000],"countryCode":"FI"},{"incomeBrackets":[0,20000,40000,75000,100000],"countryCode":"GB"}]""");
+        var expected = new JSONArray("""
+                [{"incomeBrackets":[0,20000,40000,75000,100001], "countryCode":"FI"},{"incomeBrackets":[0,20000,40000,75000,100001], "countryCode":"GB"}]""");
+
+        var passed = true;
+        try {
+            assertion
+                    .compareOnly("incomeBrackets")
+                    .jsonEquals(actual, expected);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+
+        assertFalse(passed);
+    }
 }
