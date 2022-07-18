@@ -970,4 +970,79 @@ public class JsonAssertTest {
 
         assertFalse(passed);
     }
+
+    @Test
+    public void testCanIgnoreWholeArrayOfObjects() {
+        var j1 = new JSONArray("""
+                [
+                    {"createdAt": 1, "updatedAt": 2},
+                    {"createdAt": 1, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]}
+                ]""");
+        var j2 = new JSONArray("""
+                [{"createdAt": 1, "updatedAt": 2},{"createdAt": 1, "updatedAt": 2}]""");
+
+        assertion
+                .ignore("subItems")
+                .jsonEquals(j1, j2);
+    }
+
+    @Test
+    public void testFailIfCompareWholeArrayOfObjects() {
+        var j1 = new JSONArray("""
+                [
+                    {"createdAt": 1, "updatedAt": 2},
+                    {"createdAt": 1, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]}
+                ]""");
+        var j2 = new JSONArray("""
+                [{"createdAt": 1, "updatedAt": 2},{"createdAt": 1, "updatedAt": 2}]""");
+
+        var passed = true;
+        try {
+            assertion.jsonEquals(j1, j2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+    }
+
+    @Test
+    public void testCanCompareOnlyWholeArrayOfObjects() {
+        var j1 = new JSONArray("""
+                [
+                    {"createdAt": 1, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]},
+                    {"createdAt": 1, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]}
+                ]""");
+        var j2 = new JSONArray("""
+                [
+                    {"createdAt": 2, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]},
+                    {"createdAt": 1, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]}
+                ]""");
+
+        assertion
+                .compareOnly("subItems")
+                .jsonEquals(j1, j2);
+    }
+
+    @Test
+    public void testFailIfCompareOnlyWholeArrayOfObjects() {
+        var j1 = new JSONArray("""
+                [
+                    {"createdAt": 1, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]},
+                    {"createdAt": 1, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]}
+                ]""");
+        var j2 = new JSONArray("""
+                [
+                    {"createdAt": 2, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]},
+                    {"createdAt": 1, "updatedAt": 2, "subItems": [{"createdAt": 1,"updatedAt": 2}]}
+                ]""");
+
+        var passed = true;
+        try {
+            assertion
+                    .jsonEquals(j1, j2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+    }
 }

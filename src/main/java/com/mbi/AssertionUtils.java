@@ -275,6 +275,13 @@ final class AssertionUtils {
      */
     private static boolean parentFieldIsArray(final String parentField, final String flattenedJsonKey) {
         final var flattenedArrayFieldRegex = "^\\w+\\[\\d+]$";
-        return !parentField.matches(flattenedArrayFieldRegex) && flattenedJsonKey.matches(flattenedArrayFieldRegex);
+
+        final var firstPartOfFlattenedKey = SPLIT_KEYS.apply(flattenedJsonKey)[0];
+
+        final boolean wholeArrayProceededButNotArrayElement = !parentField.matches(flattenedArrayFieldRegex);
+        final boolean flattenedKeyIsArray = firstPartOfFlattenedKey.matches(flattenedArrayFieldRegex);
+        final boolean flattenedKeyShouldBeProceeded = firstPartOfFlattenedKey.startsWith(parentField);
+
+        return wholeArrayProceededButNotArrayElement && flattenedKeyIsArray && flattenedKeyShouldBeProceeded;
     }
 }
