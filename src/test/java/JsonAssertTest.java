@@ -1045,4 +1045,60 @@ public class JsonAssertTest {
         }
         assertFalse(passed);
     }
+
+    @Test
+    public void testCanIgnoreArrayInArray() {
+        var json1 = new JSONObject("""
+                {"data":[{"q":1, "w":[1]}]}""");
+        var json2 = new JSONObject("""
+                {"data":[{"q":1}]}""");
+
+        assertion
+                .ignore("data[0].w")
+                .jsonEquals(json1, json2);
+    }
+
+    @Test
+    public void testFailIfArrayInArrayNotEquals() {
+        var json1 = new JSONObject("""
+                {"data":[{"q":1, "w":[1]}]}""");
+        var json2 = new JSONObject("""
+                {"data":[{"q":1, "w":[2]}]}""");
+
+        var passed = true;
+        try {
+            assertion.jsonEquals(json1, json2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+    }
+
+    @Test
+    public void testCanCompareArrayInArray() {
+        var json1 = new JSONObject("""
+                {"data":[{"q":1, "w":[1]}]}""");
+        var json2 = new JSONObject("""
+                {"data":[{"q":2, "w":[1]}]}""");
+
+        assertion
+                .compareOnly("data[0].w")
+                .jsonEquals(json1, json2);
+    }
+
+    @Test
+    public void testFailIfCompareArrayInArray() {
+        var json1 = new JSONObject("""
+                {"data":[{"q":1, "w":[1]}]}""");
+        var json2 = new JSONObject("""
+                {"data":[{"q":2, "w":[1]}]}""");
+
+        var passed = true;
+        try {
+            assertion.jsonEquals(json1, json2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+    }
 }

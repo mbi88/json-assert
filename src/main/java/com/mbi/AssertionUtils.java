@@ -280,7 +280,7 @@ final class AssertionUtils {
 
         final boolean wholeArrayProceededButNotArrayElement = !parentField.matches(flattenedArrayFieldRegex);
         final boolean flattenedKeyIsArray = firstPartOfFlattenedKey.matches(flattenedArrayFieldRegex);
-        final boolean flattenedKeyShouldBeProceeded = firstPartOfFlattenedKey.startsWith(parentField);
+        final boolean flattenedKeyShouldBeProceeded = flattenedJsonKey.startsWith(parentField);
 
         return wholeArrayProceededButNotArrayElement && flattenedKeyIsArray && flattenedKeyShouldBeProceeded;
     }
