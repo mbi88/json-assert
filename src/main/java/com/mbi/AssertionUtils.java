@@ -274,13 +274,16 @@ final class AssertionUtils {
      * If whole array need to be skipped.
      */
     private static boolean parentFieldIsArray(final String parentField, final String flattenedJsonKey) {
-        final var flattenedArrayFieldRegex = "^\\w+\\[\\d+]$";
-
-        final var firstPartOfFlattenedKey = SPLIT_KEYS.apply(flattenedJsonKey)[0];
+        final var flattenedArrayFieldRegex = "^\\[\\d+].*$";
 
         final boolean wholeArrayProceededButNotArrayElement = !parentField.matches(flattenedArrayFieldRegex);
-        final boolean flattenedKeyIsArray = firstPartOfFlattenedKey.matches(flattenedArrayFieldRegex);
         final boolean flattenedKeyShouldBeProceeded = flattenedJsonKey.startsWith(parentField);
+
+        boolean flattenedKeyIsArray = true;
+        if (flattenedKeyShouldBeProceeded) {
+            final var firstPartOfFlattenedKey = flattenedJsonKey.substring(parentField.length());
+            flattenedKeyIsArray = firstPartOfFlattenedKey.matches(flattenedArrayFieldRegex);
+        }
 
         return wholeArrayProceededButNotArrayElement && flattenedKeyIsArray && flattenedKeyShouldBeProceeded;
     }

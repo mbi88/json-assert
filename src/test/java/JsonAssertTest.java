@@ -1101,4 +1101,142 @@ public class JsonAssertTest {
         }
         assertFalse(passed);
     }
+
+    @Test
+    public void testInnerArrayCanBeIgnored() {
+        var j1 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test1"],
+                }}}""");
+        var j2 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test2"],
+                }}}""");
+
+        assertion
+                .ignore("data.sys.b")
+                .jsonEquals(j1, j2);
+    }
+
+    @Test
+    public void testInnerArrayFail() {
+        var j1 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test1"],
+                }}}""");
+        var j2 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test2"],
+                }}}""");
+
+        var passed = true;
+        try {
+            assertion.jsonEquals(j1, j2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+    }
+
+    @Test
+    public void testCanCompareInnerArray() {
+        var j1 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test1"],
+                }}}""");
+        var j2 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test2"],
+                }}}""");
+
+        var passed = true;
+        try {
+            assertion
+                    .compareOnly("data.sys.b")
+                    .jsonEquals(j1, j2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+    }
+
+    @Test
+    public void testCanCompareIfExistInnerArray() {
+        var j1 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test1"],
+                }}}""");
+        var j2 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test2"],
+                }}}""");
+
+        assertion
+                .compareOnly("data.sys.a")
+                .jsonEquals(j1, j2);
+    }
+
+    @Test
+    public void testCanCompareElementsInInnerArray() {
+        var j1 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test1", "a"],
+                }}}""");
+        var j2 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test2", "a"],
+                }}}""");
+
+        var passed = true;
+        try {
+            assertion
+                    .compareOnly("data.sys.b[0]")
+                    .jsonEquals(j1, j2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+
+        assertion
+                .compareOnly("data.sys.b[1]")
+                .jsonEquals(j1, j2);
+    }
+
+    @Test
+    public void testCanIgnoreElementsInInnerArray() {
+        var j1 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test1", "a"],
+                }}}""");
+        var j2 = new JSONObject("""
+                {"data": {"sys": {
+                  "a": 1,
+                  "b": ["test2", "a"],
+                }}}""");
+
+        var passed = true;
+        try {
+            assertion
+                    .ignore("data.sys.b[1]")
+                    .jsonEquals(j1, j2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+
+        assertion
+                .ignore("data.sys.b[0]")
+                .jsonEquals(j1, j2);
+    }
 }
