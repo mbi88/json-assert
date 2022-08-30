@@ -46,7 +46,11 @@ final class AssertionUtils {
     private static final BiFunction<Set<String>, String, List<String>> GET_CHILDREN = (parentFields, parent) -> {
         final List<String> list = new ArrayList<>();
         parentFields.forEach(s -> {
-            if (s.startsWith(parent)) {
+            final var tmpParentArrayElement = parent
+                    .replace("[", "\\[")
+                    .replace("]", "\\]")
+                    .concat("\\..*");
+            if (s.equalsIgnoreCase(parent) || s.matches(tmpParentArrayElement)) {
                 list.add(s);
             }
         });

@@ -1239,4 +1239,88 @@ public class JsonAssertTest {
                 .ignore("data.sys.b[0]")
                 .jsonEquals(j1, j2);
     }
+
+    @Test
+    public void testCanIgnoreIfFieldsNamesStartTheSame() {
+        var json1 = new JSONArray("""
+                [
+                  {
+                    "customFieldId": "9bd4ffac-f618-4579-8c6f-0792b2ed9d76",
+                    "customField": {
+                      "values": [{"name": "name1", "rank": 0, "id": "51abfed0-8b4f-4117-82bb-ec3ca9aa75b9" }],
+                      "name": "name1",
+                      "id": "9bd4ffac-f618-4579-8c6f-0792b2ed9d76"
+                    }
+                  },
+                  {
+                    "customFieldId": "349bcda1-5ec0-4118-a1e8-e059d9739390",
+                    "customField": {
+                      "values": [{"name": "name2", "rank": 0, "id": "5cfc6d7c-24b2-495e-9e11-0cbaebfd0160" }],
+                      "name": "name2",
+                      "id": "349bcda1-5ec0-4118-a1e8-e059d9739390"
+                    }
+                  }
+                ]""");
+        var json2 = new JSONArray("""
+                [
+                  {"customField": {
+                    "values": [{"name": "name1", "rank": 1}],
+                    "name": "name1",
+                    "id": "2978df16-54b8-4e05-92ab-4e751217a399",
+                  }},
+                  {"customField": {
+                    "values": [{"name": "name2","rank": 0}],
+                    "name": "name2"
+                  }}
+                ]""");
+
+        assertion
+                .ignore("customField.values[0].id", "customField.id", "customFieldId")
+                .jsonEquals(json1, json2);
+    }
+
+    @Test
+    public void testFailedIfFieldsNamesStartTheSame() {
+        var json1 = new JSONArray("""
+                [
+                  {
+                    "customFieldId": "9bd4ffac-f618-4579-8c6f-0792b2ed9d76",
+                    "customField": {
+                      "values": [{"name": "name1", "rank": 0, "id": "51abfed0-8b4f-4117-82bb-ec3ca9aa75b9" }],
+                      "name": "name1",
+                      "id": "9bd4ffac-f618-4579-8c6f-0792b2ed9d76"
+                    }
+                  },
+                  {
+                    "customFieldId": "349bcda1-5ec0-4118-a1e8-e059d9739390",
+                    "customField": {
+                      "values": [{"name": "name2", "rank": 0, "id": "5cfc6d7c-24b2-495e-9e11-0cbaebfd0160" }],
+                      "name": "name2",
+                      "id": "349bcda1-5ec0-4118-a1e8-e059d9739390"
+                    }
+                  }
+                ]""");
+        var json2 = new JSONArray("""
+                [
+                  {"customField": {
+                    "values": [{"name": "name1", "rank": 1}],
+                    "name": "name1",
+                    "id": "2978df16-54b8-4e05-92ab-4e751217a399",
+                  }},
+                  {"customField": {
+                    "values": [{"name": "name2","rank": 0}],
+                    "name": "name2"
+                  }}
+                ]""");
+
+        var passed = true;
+        try {
+            assertion
+                    .ignore("customField.values[0].id", "customField.id")
+                    .jsonEquals(json1, json2);
+        } catch (AssertionError error) {
+            passed = false;
+        }
+        assertFalse(passed);
+    }
 }
