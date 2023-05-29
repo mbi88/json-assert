@@ -34,6 +34,6 @@ jobs:
           arguments: clean build jacocoTestReport
         if: success()
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1.0.3
+        uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
