@@ -14,8 +14,10 @@ public class JsonAssertTest {
     @Test
     public void testObjectDefaultIgnoreIsNotSet() {
         boolean isPassed = false;
-        var expected = new JSONObject("{\"q\": 1, \"w\":2}");
-        var actual = new JSONObject("{\"q\": 1}");
+        var expected = new JSONObject("""
+                {"q": 1, "w": 2}""");
+        var actual = new JSONObject("""
+                {"q": 1}""");
 
         try {
             assertion.jsonEquals(expected, actual);
