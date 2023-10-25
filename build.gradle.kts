@@ -19,7 +19,7 @@ dependencies {
     implementation("org.skyscreamer:jsonassert:1.5.1")
     implementation("org.testng:testng:7.8.0")
     implementation("io.rest-assured:rest-assured:5.3.2")
-    implementation("com.github.wnameless:json-flattener:0.7.1")
+    implementation("com.github.wnameless.json:json-flattener:0.16.6")
 }
 tasks.test {
     useTestNG {
