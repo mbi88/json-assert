@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation("org.json:json:20231013")
     implementation("org.skyscreamer:jsonassert:1.5.1")
-    implementation("org.testng:testng:7.8.0")
+    implementation("org.testng:testng:7.9.0")
     implementation("io.rest-assured:rest-assured:5.4.0")
     implementation("com.github.wnameless.json:json-flattener:0.16.6")
 }
