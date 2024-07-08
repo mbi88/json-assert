@@ -18,7 +18,7 @@ dependencies {
     implementation("org.json:json:20240303")
     implementation("org.skyscreamer:jsonassert:1.5.1")
     implementation("org.testng:testng:7.10.2")
-    implementation("io.rest-assured:rest-assured:5.4.0")
+    implementation("io.rest-assured:rest-assured:5.5.0")
     implementation("com.github.wnameless.json:json-flattener:0.16.6")
 }
 tasks.test {
