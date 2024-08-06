@@ -9,8 +9,8 @@ import static io.restassured.RestAssured.get;
 public class JsonAssertArgumentsTest {
 
     private final JsonAssert assertion = new JsonAssert();
-    private final Response responseArray = get("https://run.mocky.io/v3/5c2c9837-6f58-4767-b321-306428b3eaa0");
-    private final Response responseObject = get("https://run.mocky.io/v3/c67a6c58-533b-412c-89fe-0a4d1e58ccc3");
+    private final Response responseArray = get("https://api.npoint.io/efb3f7b515781b5e1a7d");
+    private final Response responseObject = get("https://api.npoint.io/78e49d7b8b5c4b6c9690");
     private final JSONObject object1 = new JSONObject("""
             {
               "widget": {
