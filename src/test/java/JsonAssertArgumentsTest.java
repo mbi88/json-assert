@@ -10,7 +10,7 @@ public class JsonAssertArgumentsTest {
 
     private final JsonAssert assertion = new JsonAssert();
     private final Response responseArray = get("https://api.npoint.io/efb3f7b515781b5e1a7d");
-    private final Response responseObject = get("https://api.npoint.io/78e49d7b8b5c4b6c9690");
+    private final Response responseObject = get("https://api.npoint.io/a4600f1cd1c37a334ccf");
     private final JSONObject object1 = new JSONObject("""
             {
               "widget": {
