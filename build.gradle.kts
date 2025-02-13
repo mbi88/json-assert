@@ -24,13 +24,11 @@ dependencies {
 tasks.test {
     useTestNG {
         // Add test suites
-        File(projectDir.absolutePath + "/" + suitesDir)
-            .walk()
-            .forEach {
-                if (it.isFile) {
-                    suites(it)
-                }
+        File(projectDir.absolutePath + "/" + suitesDir).walk().forEach {
+            if (it.isFile) {
+                suites(it)
             }
+        }
 
         testLogging {
             events("passed", "skipped", "failed")
@@ -44,7 +42,7 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
         html.required.set(true)
-        html.outputLocation.set(layout.buildDirectory.dir("${buildDir}/reports/coverage").get().asFile)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/coverage"))
     }
 }
 
