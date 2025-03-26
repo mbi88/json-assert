@@ -3,166 +3,33 @@ package com.mbi;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 /**
- * Different modes for json comparing.
+ * Supported comparison modes for JSON equality checks.
+ * <p>
+ * Controls how strictly JSON objects and arrays are compared.
+ * Modes can be:
+ * - Ordered / Not ordered
+ * - Extensible (allowing extra fields in arrays) or not
  */
 public enum CompareMode {
 
     /**
-     * Used by default. Not ordered, not extensible.
-     * <p>
-     * Examples for json objects assertion:
-     * <p>
-     * 1.
-     * actual - {"id": 1, "name": "string"}
-     * expected - {"id": 1, "name": "string", "structured": true}
-     * Assertion result: failed
-     * <p>
-     * 2.
-     * actual - {"id": 1, "name": "string", "structured": true}
-     * expected - {"id": 1, "name": "string"}
-     * Assertion result: failed
-     * <p>
-     * 3.
-     * actual - {"id": 1, "name": "string", "structured": true}
-     * expected - {"id": 1, "name": "string", "structured": true}
-     * Assertion result: succeed
-     * <p>
-     * Examples for json arrays assertion:
-     * <p>
-     * 1.
-     * actual - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string"}]
-     * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: failed
-     * <p>
-     * 2.
-     * actual - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * expected -[{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string"}]
-     * Assertion result: failed
-     * <p>
-     * 3.
-     * actual - [{"id": 2, "name": "string", "structured": true}, {"id": 1, "name": "string", "structured": true}]
-     * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: succeed
-     * <p>
-     * 4.
-     * actual - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: succeed
+     * Default mode.
+     * Objects and arrays must match exactly in fields and order.
      */
     NOT_ORDERED(false, false),
 
     /**
-     * Ordered, not extensible.
-     * <p>
-     * Examples for json objects assertion:
-     * <p>
-     * 1.
-     * actual - {"id": 1, "name": "string", "structured": true}
-     * expected - {"id": 1, "name": "string", "structured": true}
-     * Assertion result: true
-     * <p>
-     * 2.
-     * actual - {"structured": true, "id": 1, "name": "string"}
-     * expected - {"id": 1, "name": "string", "structured": true}
-     * Assertion result: succeed
-     * <p>
-     * 3.
-     * actual - {"structured": true, "id": 1}
-     * expected - {"id": 1, "name": "string", "structured": true}
-     * Assertion result: failed
-     * <p>
-     * 4.
-     * actual - {"id": 1, "name": "string", "structured": true}
-     * expected - {"structured": true, "id": 1}
-     * Assertion result: failed
-     * <p>
-     * Examples for json arrays assertion:
-     * <p>
-     * 1.
-     * actual - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string"}]
-     * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: failed
-     * <p>
-     * 2.
-     * actual - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string"}]
-     * Assertion result: failed
-     * <p>
-     * 3.
-     * actual - [{"id": 2, "name": "string", "structured": true}, {"id": 1, "name": "string", "structured": true}]
-     * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: failed
-     * <p>
-     * 4.
-     * actual - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: succeed
+     * Enforces order in arrays but doesn't allow extra elements.
      */
     ORDERED(true, false),
 
     /**
-     * Not ordered, extensible array.
-     * <p>
-     * Examples for json arrays assertion:
-     * <p>
-     * 1.
-     * actual - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * expected - [{"id": 1, "name": "string", "structured": true}]
-     * Assertion result: succeed
-     * <p>
-     * 2.
-     * actual - [{"id": 1, "name": "string", "structured": true}]
-     * expected - [{"id": 1, "name": "string", "structured": true}, {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: failed
-     * <p>
-     * 3.
-     * actual - [{"id": 2, "name": "string", "structured": true},
-     * {"id": 1, "name": "string", "structured": true},
-     * {"id": 3, "name": "string", "structured": false}]
-     * expected - [{"id": 1, "name": "string", "structured": true},
-     * {"id": 2, "name": "string", "structured": true},
-     * {"id": 3, "name": "string", "structured": false}]
-     * Assertion result: succeed
-     * <p>
-     * 4.
-     * actual - [{"id": 2, "name": "string", "structured": true},
-     * {"id": 1, "name": "string", "structured": true},
-     * {"id": 3, "name": "string", "structured": false}]
-     * expected - [{"id": 1, "name": "string", "structured": true},
-     * {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: succeed
+     * Ignores order and allows extra elements in the actual array.
      */
     NOT_ORDERED_EXTENSIBLE_ARRAY(false, true),
 
     /**
-     * Ordered, extensible array.
-     * <p>
-     * Examples for json arrays assertion:
-     * <p>
-     * 1.
-     * actual - [{"id": 2, "name": "string", "structured": true},
-     * {"id": 1, "name": "string", "structured": true},
-     * {"id": 3, "name": "string", "structured": false}]
-     * expected - [{"id": 1, "name": "string", "structured": true},
-     * {"id": 2, "name": "string", "structured": true},
-     * {"id": 3, "name": "string", "structured": false}]
-     * Assertion result: failed
-     * <p>
-     * 2.
-     * actual - [{"id": 1, "name": "string", "structured": true},
-     * {"id": 2, "name": "string", "structured": true}]
-     * expected - [{"id": 1, "name": "string", "structured": true},
-     * {"id": 2, "name": "string", "structured": true},
-     * {"id": 3, "name": "string", "structured": false}]
-     * Assertion result: failed
-     * <p>
-     * 3.
-     * actual - [{"id": 1, "name": "string", "structured": true},
-     * {"id": 2, "name": "string", "structured": true},
-     * {"id": 3, "name": "string", "structured": false}]
-     * expected - [{"id": 1, "name": "string", "structured": true},
-     * {"id": 2, "name": "string", "structured": true}]
-     * Assertion result: true
+     * Enforces order but allows extra elements in the actual array.
      */
     ORDERED_EXTENSIBLE_ARRAY(true, true);
 
@@ -188,13 +55,15 @@ public enum CompareMode {
     }
 
     /**
-     * Method to transform custom compare mode to JSONCompareMode.
+     * Maps custom CompareMode to the closest JSONCompareMode.
      *
      * @param mode compare mode
      * @return json compare mode
      */
     protected static JSONCompareMode getCompareMode(final CompareMode mode) {
-        return mode.isOrdered() ? JSONCompareMode.STRICT : JSONCompareMode.NON_EXTENSIBLE;
+        return mode.isOrdered()
+                ? JSONCompareMode.STRICT
+                : JSONCompareMode.NON_EXTENSIBLE;
     }
 
     /**

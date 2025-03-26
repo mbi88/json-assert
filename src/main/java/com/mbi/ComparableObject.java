@@ -6,82 +6,85 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 /**
- * Need for json objects equality assurance.
+ * Wrapper class to compare JSON-like objects based on content rather than reference.
+ * Internally uses {@link JSONAssert} with {@link JSONCompareMode#NON_EXTENSIBLE}.
  */
 final class ComparableObject {
 
     /**
-     * Object to compare.
+     * The object to compare. Should be convertible to JSONObject via toString().
      */
     private final Object object;
 
     /**
-     * Constructor.
+     * Constructs a wrapper for the object.
      *
-     * @param object object to compare.
+     * @param object object to wrap; must not be null.
      */
     ComparableObject(final Object object) {
+        Validate.notNull(object, "Passed object can't be null");
         this.object = object;
     }
 
     /**
-     * Converts object to json object.
+     * Converts the wrapped object to a {@link JSONObject}.
      *
-     * @return json object.
+     * @return JSON representation of the wrapped object.
      */
     public JSONObject toJsonObject() {
-        return new JSONObject(this.object.toString());
+        return new JSONObject(object.toString());
     }
 
     /**
-     * Returns a hash code value for the object.
+     * Returns the hash code of the wrapped object.
      *
      * @return hash code.
      */
     @Override
     public int hashCode() {
-        return this.object.hashCode();
+        return object.hashCode();
     }
 
     /**
-     * Compares two objects via JSONAssert.assertEquals() method. JSONCompareMode.NON_EXTENSIBLE is used by default.
-     * Returns true if no assertion error exception was caught.
+     * Compares this object to another using strict JSON equality.
+     * Returns true if both represent the same JSON structure and values.
      *
-     * @param obj object to be compared.
-     * @return comparison result.
+     * @param obj other object to compare to.
+     * @return true if equal based on JSON content; false otherwise.
      */
     @Override
     public boolean equals(final Object obj) {
-        Validate.notNull(obj, "Passed object can't be null");
-        return obj instanceof ComparableObject && isEqual(this.toJsonObject(), new JSONObject(obj.toString()));
+        if (!(obj instanceof ComparableObject other)) {
+            return false;
+        }
+
+        return isEqual(this.toJsonObject(), new JSONObject(other.object.toString()));
     }
 
     /**
-     * Internal equality assertion.
+     * Compares two JSONObjects using NON_EXTENSIBLE mode.
+     * Returns true if they are considered equal, false otherwise.
      *
      * @param json1 1st json object.
      * @param json2 2nd json object.
      * @return equality result.
      */
     private boolean isEqual(final JSONObject json1, final JSONObject json2) {
-        boolean equals;
         try {
             JSONAssert.assertEquals(json1, json2, JSONCompareMode.NON_EXTENSIBLE);
-            equals = true;
-        } catch (AssertionError error) {
-            equals = false;
+            return true;
+        } catch (AssertionError e) {
+            return false;
         }
-
-        return equals;
     }
 
     /**
-     * Returns a string representation of the object.
+     * Returns a string representation of the wrapped object.
      *
-     * @return a string representation of the object.
+     * @return string value of the wrapped object.
      */
     @Override
     public String toString() {
-        return this.object.toString();
+        return object.toString();
     }
 }

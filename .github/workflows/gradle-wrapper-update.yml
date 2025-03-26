@@ -1,0 +1,21 @@
+name: Update Gradle Wrapper
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # every Monday 08:00 UTC
+  workflow_dispatch:     # run manually from GitHub UI
+
+jobs:
+  update-wrapper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Update Gradle Wrapper
+        uses: gradle-update/gradle-update-wrapper-action@v1
+        with:
+          labels: gradle, dependencies
+          commit-message: 'chore: update Gradle Wrapper to latest version'
+          pr-title: 'chore: update Gradle Wrapper to latest version'

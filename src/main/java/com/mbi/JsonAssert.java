@@ -11,150 +11,163 @@ import java.util.Set;
 import static com.mbi.AssertionUtils.objectsToArray;
 
 /**
- * Compares json objects or json arrays if they are equal.
+ * Performs JSON equality and inequality assertions.
+ * <p>
+ * Supports different comparison modes ({@link CompareMode}) and filtering via ignore/include fields.
+ * Can compare {@link JSONObject}, {@link JSONArray} or {@link Response} bodies.
+ * Automatically resets its state after each assertion.
+ * Designed for use in test scenarios where JSON structure or partial matching is required.
  */
 public final class JsonAssert implements Assert {
 
     /**
-     * Compare mode.
+     * Assertion engine that handles low-level equality logic.
      */
-    private CompareMode mode;
+    private final EqualityAsserter asserter = new EqualityAsserter();
 
     /**
-     * Fields to be ignored.
+     * Comparison mode. Defaults to {@link CompareMode#NOT_ORDERED}.
      */
-    private Set<String> blackList;
+    private CompareMode mode = CompareMode.NOT_ORDERED;
 
     /**
-     * Fields to be compared.
+     * Fields to exclude from comparison.
      */
-    private Set<String> whiteList;
+    private Set<String> blackList = new HashSet<>();
 
     /**
-     * Sets default state before usage.
+     * Fields to include in comparison (others are ignored).
      */
-    public JsonAssert() {
-        // Set default mode, ignore, compare fields
-        this.setDefaultState();
-    }
+    private Set<String> whiteList = new HashSet<>();
 
     /**
-     * Sets default state after every comparing. Every new comparison starts from scratch: previous compare mode,
-     * ignore and compare fields should be reinstalled.
+     * Compares two JSON objects for equality.
      */
-    private void setDefaultState() {
-        // Default mode
-        this.mode = CompareMode.NOT_ORDERED;
-        // Default fields to ignore
-        this.blackList = new HashSet<>();
-        // Default fields to compare
-        this.whiteList = new HashSet<>();
-    }
-
     @Override
     public void jsonEquals(final JSONObject actual, final JSONObject expected) {
-        try {
-            final var asserter = new EqualityAsserter();
-            asserter.assertEquals(actual, expected, mode, blackList, whiteList);
-        } finally {
-            // Set default mode, ignore
-            setDefaultState();
-        }
+        perform(() -> asserter.assertEquals(actual, expected, mode, blackList, whiteList));
     }
 
+    /**
+     * Compares two JSON arrays for equality.
+     */
     @Override
     public void jsonEquals(final JSONArray actual, final JSONArray expected) {
-        try {
-            final var asserter = new EqualityAsserter();
-            asserter.assertEquals(actual, expected, mode, blackList, whiteList);
-        } finally {
-            // Set default mode, ignore
-            setDefaultState();
-        }
+        perform(() -> asserter.assertEquals(actual, expected, mode, blackList, whiteList));
     }
 
+    /**
+     * Compares a JSON array with one or more expected JSON objects.
+     * Treats expected objects as array elements.
+     */
     @Override
     public void jsonEquals(final JSONArray actual, final JSONObject... expected) {
-        try {
-            final var asserter = new EqualityAsserter();
-            asserter.assertEquals(actual, objectsToArray(expected), mode, blackList, whiteList);
-        } finally {
-            // Set default mode, ignore
-            setDefaultState();
-        }
+        perform(() -> asserter.assertEquals(actual, objectsToArray(expected), mode, blackList, whiteList));
     }
 
+    /**
+     * Compares a REST-assured response (array body) with expected JSON array.
+     */
     @Override
     public void jsonEquals(final Response actual, final JSONArray expected) {
-        try {
-            final var asserter = new EqualityAsserter();
-            asserter.assertEquals(new JSONArray(actual.asString()), expected, mode, blackList, whiteList);
-        } finally {
-            // Set default mode, ignore
-            setDefaultState();
-        }
+        perform(() -> asserter.assertEquals(new JSONArray(actual.asString()), expected, mode, blackList, whiteList));
     }
 
+    /**
+     * Compares a REST-assured response (object body) with expected JSON object.
+     */
     @Override
     public void jsonEquals(final Response actual, final JSONObject expected) {
-        try {
-            final var asserter = new EqualityAsserter();
-            asserter.assertEquals(new JSONObject(actual.asString()), expected, mode, blackList, whiteList);
-        } finally {
-            // Set default mode, ignore
-            setDefaultState();
-        }
+        perform(() -> asserter.assertEquals(new JSONObject(actual.asString()), expected, mode, blackList, whiteList));
     }
 
+    /**
+     * Compares a REST-assured response (array body) with expected JSON objects (as array).
+     */
     @Override
     public void jsonEquals(final Response actual, final JSONObject... expected) {
-        try {
-            final var asserter = new EqualityAsserter();
-            asserter.assertEquals(new JSONArray(actual.asString()), objectsToArray(expected),
-                    mode, blackList, whiteList);
-        } finally {
-            // Set default mode, ignore
-            setDefaultState();
-        }
+        perform(() -> asserter.assertEquals(
+                new JSONArray(actual.asString()),
+                objectsToArray(expected),
+                mode, blackList, whiteList));
     }
 
+    /**
+     * Asserts that two JSON objects are not equal.
+     */
     @Override
     public void jsonNotEquals(final JSONObject actual, final JSONObject expected) {
-        try {
-            final var asserter = new EqualityAsserter();
-            asserter.assertNotEquals(actual, expected, mode, blackList, whiteList);
-        } finally {
-            // Set default mode, ignore
-            setDefaultState();
-        }
+        perform(() -> asserter.assertNotEquals(actual, expected, mode, blackList, whiteList));
     }
 
+    /**
+     * Asserts that two JSON arrays are not equal.
+     */
     @Override
     public void jsonNotEquals(final JSONArray actual, final JSONArray expected) {
-        try {
-            final var asserter = new EqualityAsserter();
-            asserter.assertNotEquals(actual, expected, mode, blackList, whiteList);
-        } finally {
-            // Set default mode, ignore
-            setDefaultState();
-        }
+        perform(() -> asserter.assertNotEquals(actual, expected, mode, blackList, whiteList));
     }
 
+    /**
+     * Sets the comparison mode (e.g., ordered vs. unordered, extensible vs. strict).
+     *
+     * @param mode comparison mode
+     * @return this for method chaining
+     */
     @Override
     public JsonAssert withMode(final CompareMode mode) {
         this.mode = mode;
         return this;
     }
 
+    /**
+     * Sets field names to ignore during comparison.
+     *
+     * @param ignoreFieldNames field paths to ignore
+     * @return this for method chaining
+     */
     @Override
     public JsonAssert ignore(final String... ignoreFieldNames) {
         this.blackList = new HashSet<>(Arrays.asList(ignoreFieldNames));
         return this;
     }
 
+    /**
+     * Sets field names to exclusively compare (ignore all others).
+     *
+     * @param compareFieldNames field paths to include
+     * @return this for method chaining
+     */
     @Override
     public JsonAssert compareOnly(final String... compareFieldNames) {
         this.whiteList = new HashSet<>(Arrays.asList(compareFieldNames));
         return this;
+    }
+
+    /**
+     * Executes assertion logic and resets internal state.
+     *
+     * @param assertion lambda that performs the actual comparison
+     */
+    private void perform(final Runnable assertion) {
+        try {
+            assertion.run();
+        } finally {
+            reset();
+        }
+    }
+
+    /**
+     * Resets compare mode and field filters to their default state.
+     * Ensures assertions are stateless between uses, every new comparison starts from scratch: previous compare mode,
+     * ignore and compare fields should be reinstalled.
+     */
+    private void reset() {
+        // Default mode
+        this.mode = CompareMode.NOT_ORDERED;
+        // Default fields to ignore
+        this.blackList.clear();
+        // Default fields to compare
+        this.whiteList.clear();
     }
 }

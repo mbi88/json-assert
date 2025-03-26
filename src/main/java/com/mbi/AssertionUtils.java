@@ -15,7 +15,10 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 /**
- * Utils class.
+ * Utility class for advanced JSON comparison and transformation logic.
+ * <p>
+ * It helps apply field-level filters (include/ignore), normalize JSON for comparison,
+ * and extract shared elements between JSON arrays.
  */
 @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 final class AssertionUtils {
@@ -23,17 +26,17 @@ final class AssertionUtils {
     /**
      * Fields separator in flattened json.
      */
-    private static final String FIELDS_SEPARATOR = ".";
+    private static final String FIELD_SEPARATOR = ".";
 
     /**
-     * Checks if field is present in flattened json.
+     * Predicate that checks if a given flattened JSON key belongs to any of the provided parent paths.
+     * Used for applying include/exclude rules based on JSON field hierarchy.
      */
-    private static final BiPredicate<String, Set<String>> TEST_KEY_IS_PARENT = (flattenedJsonKey, parentFields)
-            -> parentFields
-            .stream()
-            .anyMatch(parentField -> flattenedJsonKey.startsWith(parentField.concat(FIELDS_SEPARATOR))
-                    || flattenedJsonKey.equalsIgnoreCase(parentField)
-                    || parentFieldIsArray(parentField, flattenedJsonKey));
+    private static final BiPredicate<String, Set<String>> IS_CHILD_FIELD = (flattenedJsonKey, parents) ->
+            parents.stream().anyMatch(parent ->
+                    flattenedJsonKey.startsWith(parent + FIELD_SEPARATOR)
+                            || flattenedJsonKey.equalsIgnoreCase(parent)
+                            || isArrayFieldMatch(parent, flattenedJsonKey));
 
     /**
      * Split field by field separator.
@@ -41,151 +44,129 @@ final class AssertionUtils {
     private static final Function<String, String[]> SPLIT_KEYS = s -> s.split("\\.");
 
     /**
-     * Returns children of parent from set.
+     * Given a parent key, returns all children fields from the given key set that belong to that parent.
      */
-    private static final BiFunction<Set<String>, String, List<String>> GET_CHILDREN = (parentFields, parent) -> {
-        final List<String> list = new ArrayList<>();
-        parentFields.forEach(s -> {
-            final var tmpParentArrayElement = parent
-                    .replace("[", "\\[")
-                    .replace("]", "\\]")
-                    .concat("\\..*");
-            if (s.equalsIgnoreCase(parent) || s.matches(tmpParentArrayElement)) {
-                list.add(s);
+    private static final BiFunction<Set<String>, String, List<String>> CHILD_KEYS = (parentFields, parent) -> {
+        final var list = new ArrayList<String>();
+        for (var key : parentFields) {
+            final var regex = parent.replace("[", "\\[").replace("]", "\\]") + "\\..*";
+            if (key.equalsIgnoreCase(parent) || key.matches(regex)) {
+                list.add(key);
             }
-        });
+        }
         return list;
     };
 
     /**
-     * Returns min dots count in string elements of list.
+     * Returns the minimum number of dot-separated segments across all children field names.
+     * Used to determine the shallowest level of nesting among a group of fields.
      * ["as.ew.er", "ds.sd', "asd.a"] -> 1
      * ["as.ew.er", "ds.sd', "asd"] -> 0
      */
-    private static final Function<List<String>, Integer> GET_MIN_DOTS_COUNT = children -> {
-        final var ref = new Object() {
-            private int minDotsCount = Integer.MAX_VALUE;
+    private static final Function<List<String>, Integer> MIN_DOT_DEPTH = children ->
+            children.stream()
+                    .mapToInt(child -> StringUtils.countMatches(child, FIELD_SEPARATOR))
+                    .min()
+                    .orElse(0);
 
-            public void setMinDotsCount(final int minDotsCount) {
-                this.minDotsCount = minDotsCount;
-            }
-        };
+    /**
+     * Reduces a list of deeply nested fields into their top-level path up to the shallowest shared depth.
+     * Example: ["a.b.c", "a.b.d"] → ["a.b"]
+     */
+    private static final Function<List<String>, Set<String>> TOP_LEVEL_FIELDS = children -> {
+        final var result = new HashSet<String>();
+        final int depth = MIN_DOT_DEPTH.apply(children);
 
-        children.forEach(child ->
-                ref.setMinDotsCount(Math.min(StringUtils.countMatches(child, FIELDS_SEPARATOR), ref.minDotsCount)));
-
-        return ref.minDotsCount;
-    };
-
-    private static final Function<List<String>, Set<String>> GET_PARENT_IN_LIST = children -> {
-        final Set<String> result = new HashSet<>();
-        final int minDotsCount = GET_MIN_DOTS_COUNT.apply(children);
-
-        for (var child : children) {
-            final var keys = SPLIT_KEYS.apply(child);
-            final var value = new StringBuilder();
-
-            for (int i = 0; i <= minDotsCount; i++) {
-                value.append(keys[i]).append(FIELDS_SEPARATOR);
-            }
-
-            // Remove last field separator
-            final String v = value.substring(0, value.length() - 1);
-            result.add(v);
+        for (var key : children) {
+            final var parts = SPLIT_KEYS.apply(key);
+            result.add(String.join(FIELD_SEPARATOR, Arrays.copyOf(parts, depth + 1)));
         }
 
         return result;
     };
 
     /**
-     * Removes child fields from set.
-     * Example: for set [a.b, a, a.b.c, b, c.d] result will be [a, b, c.d].
+     * Reduces a full set of field names to their minimal distinguishable top-level segments.
+     * Helps simplify field path matching.
      */
-    @SuppressWarnings("PMD.AvoidProtectedFieldInFinalClass")
-    private static final Function<Set<String>, Set<String>> GET_PARENT_FIELDS = set -> {
-        final Set<String> result = new HashSet<>();
-        set.forEach(key -> {
-            final var parent = SPLIT_KEYS.apply(key)[0];
-            final var children = GET_CHILDREN.apply(set, parent);
-            result.addAll(GET_PARENT_IN_LIST.apply(children));
-        });
+    private static final Function<Set<String>, Set<String>> REDUCE_TO_TOP_LEVEL = keys -> {
+        final var result = new HashSet<String>();
+        for (var key : keys) {
+            final var top = SPLIT_KEYS.apply(key)[0];
+            result.addAll(TOP_LEVEL_FIELDS.apply(CHILD_KEYS.apply(keys, top)));
+        }
         return result;
     };
 
     /**
-     * Prohibits init.
+     * Prevent instantiation.
      */
     private AssertionUtils() {
     }
 
     /**
-     * Returns json object without fields from black list and with only fields from white list.
-     * Method supports jay way json path as a field name.
+     * Filters a JSONObject based on a blackList (ignore fields) and whiteList (include only).
+     * The object is flattened first, filtered, and then rebuilt into nested form.
      *
-     * @param json      json with redundant fields.
-     * @param blackList redundant fields to be removed.
-     * @param whiteList fields to be kept.
-     * @return result json without redundant fields
-     * @throws IllegalArgumentException if result json = {}.
+     * @param input     Original JSON object.
+     * @param blackList Fields to exclude (ignored).
+     * @param whiteList Fields to include (whiteList).
+     * @return Filtered JSON object.
      */
-    public static JSONObject filterFields(final JSONObject json, final Set<String> blackList,
+    public static JSONObject filterFields(final JSONObject input, final Set<String> blackList,
                                           final Set<String> whiteList) {
-        var result = new JSONObject(json.toString());
+        final var original = new JSONObject(input.toString());
+
         // Flattened json
-        final var flattenStr = new JsonFlattener(result.toString())
+        final var flattened = new JsonFlattener(original.toString())
                 .withFlattenMode(FlattenMode.NORMAL)
                 .flatten();
-        final var flattenJson = new JSONObject(flattenStr);
-        // Flattened json fields
-        final var flattenedJsonKeys = new JSONObject(flattenStr).keySet();
 
-        for (var flattenedJsonKey : flattenedJsonKeys) {
-            // Do not remove fields from white list
-            if (whiteList.contains(flattenedJsonKey)) {
-                continue;
+        final var flat = new JSONObject(flattened);
+
+        final Set<String> keys = flat.keySet();
+        final Set<String> whitelistTop = REDUCE_TO_TOP_LEVEL.apply(whiteList);
+        final Set<String> blacklistTop = REDUCE_TO_TOP_LEVEL.apply(blackList);
+
+        for (var key : new HashSet<>(keys)) {
+            if (!whiteList.isEmpty() && !IS_CHILD_FIELD.test(key, whitelistTop)) {
+                flat.remove(key); // remove fields not listed in whiteList
             }
 
-            // Remove all except white list
-            if (!GET_PARENT_FIELDS.apply(whiteList).isEmpty()
-                    && !TEST_KEY_IS_PARENT.test(flattenedJsonKey, GET_PARENT_FIELDS.apply(whiteList))) {
-                flattenJson.remove(flattenedJsonKey);
-            }
-
-            // Remove black list
-            if (!GET_PARENT_FIELDS.apply(blackList).isEmpty()
-                    && TEST_KEY_IS_PARENT.test(flattenedJsonKey, GET_PARENT_FIELDS.apply(blackList))) {
-                flattenJson.remove(flattenedJsonKey);
+            if (!blackList.isEmpty() && IS_CHILD_FIELD.test(key, blacklistTop)) {
+                flat.remove(key); // remove blacklisted fields
             }
         }
 
-        result = new JSONObject(JsonUnflattener.unflatten(flattenJson.toString()));
-        // Check result != {}
-        Validate.isTrue(!result.similar(new JSONObject()), "You removed all fields from json!"
-                + "\nOriginal: \n" + json.toString(2));
+        final var result = new JSONObject(JsonUnflattener.unflatten(flat.toString()));
+        // Check result != {} to avoid removing all fields from json
+        Validate.isTrue(!result.similar(new JSONObject()),
+                "You removed all fields from json!\nOriginal:\n" + input.toString(2));
 
         return result;
     }
 
     /**
-     * Returns json array without fields from black list and with only fields from white list.
+     * Filters a JSONArray of JSONObjects using the same include/exclude logic as `filterFields(JSONObject)`.
+     * If any item is not a JSONObject, the original array is returned.
      *
-     * @param json      json with redundant fields.
-     * @param blackList redundant fields to be removed.
-     * @param whiteList fields to be kept.
-     * @return result json without redundant fields
+     * @param input     Original array.
+     * @param blacklist Fields to exclude.
+     * @param whitelist Fields to include.
+     * @return Filtered array.
      */
-    public static JSONArray filterFields(final JSONArray json, final Set<String> blackList,
-                                         final Set<String> whiteList) {
+    public static JSONArray filterFields(final JSONArray input, final Set<String> blacklist,
+                                         final Set<String> whitelist) {
         final var result = new JSONArray();
-        for (int i = 0; i < json.length(); i++) {
+
+        for (int i = 0; i < input.length(); i++) {
             // Json array may consist of not json objects (e.g.: [1, 2, 5]).
             // In this case return original json array
             try {
-                var tmpJson = new JSONObject(json.get(i).toString());
-                tmpJson = filterFields(tmpJson, blackList, whiteList);
-                result.put(tmpJson);
-            } catch (JSONException je) {
-                return json;
+                final var obj = new JSONObject(input.get(i).toString());
+                result.put(filterFields(obj, blacklist, whitelist));
+            } catch (JSONException ignored) {
+                return input; // skip filtering if any item is not a JSONObject
             }
         }
 
@@ -193,23 +174,22 @@ final class AssertionUtils {
     }
 
     /**
-     * Transforms json objects array to json array.
+     * Converts one or more JSONObject instances into a JSONArray.
      *
-     * @param jsonObjects json objects.
+     * @param objects json objects.
      * @return json array.
      */
-    public static JSONArray objectsToArray(final JSONObject... jsonObjects) {
-        final var expectedArray = new JSONArray();
-
-        for (var j : jsonObjects) {
-            expectedArray.put(j);
+    public static JSONArray objectsToArray(JSONObject... objects) {
+        final var array = new JSONArray();
+        for (var obj : objects) {
+            array.put(obj);
         }
-
-        return expectedArray;
+        return array;
     }
 
     /**
-     * Returns error message.
+     * Builds a formatted error message for object comparison failure.
+     * Includes expected and actual JSON formatted with indentation.
      *
      * @param error    assertion error.
      * @param expected expected json object.
@@ -218,11 +198,11 @@ final class AssertionUtils {
      */
     public static String getErrorMessage(final AssertionError error, final JSONObject expected,
                                          final JSONObject actual) {
-        return formatMessage(error, expected.toString(4), actual.toString(4));
+        return formatError(error, expected.toString(4), actual.toString(4));
     }
 
     /**
-     * Returns error message.
+     * Builds a formatted error message for array comparison failure.
      *
      * @param error    assertion error.
      * @param expected expected json array.
@@ -230,7 +210,7 @@ final class AssertionUtils {
      * @return formatted error message.
      */
     public static String getErrorMessage(final AssertionError error, final JSONArray expected, final JSONArray actual) {
-        return formatMessage(error, expected.toString(4), actual.toString(4));
+        return formatError(error, expected.toString(4), actual.toString(4));
     }
 
     /**
@@ -241,54 +221,53 @@ final class AssertionUtils {
      * @param actual   actual json as string with indentations.
      * @return error message.
      */
-    private static String formatMessage(final AssertionError error, final String expected, final String actual) {
+    private static String formatError(final AssertionError error, final String expected, final String actual) {
         return String.format("%s%n%nExpected: %s%n%nBut found: %s", error.getMessage(), expected, actual);
     }
 
     /**
-     * Returns json array with objects which are included in both arrays.
+     * Returns a JSONArray of objects that are present in both expected and actual arrays
+     * using strict (non-extensible) JSON equality.
      *
      * @param expected expected json array.
      * @param actual   actual json array.
      * @return json array with common objects.
      */
     public static JSONArray getCommonArray(final JSONArray expected, final JSONArray actual) {
-        final var commonArray = new JSONArray();
+        final Set<ComparableObject> common = new LinkedHashSet<>();
 
         // Get a set of expected objects that are common for actual
-        final Set<ComparableObject> commonSet = new LinkedHashSet<>();
-        for (var expectedObj : expected) {
-            final var expectedJson = new ComparableObject(expectedObj);
-            for (var actualObj : actual) {
-                final var actualJson = new ComparableObject(actualObj);
-                if (expectedJson.equals(actualJson)) {
-                    commonSet.add(expectedJson);
+        for (var exp : expected) {
+            final var expectedObj = new ComparableObject(exp);
+            for (var act : actual) {
+                if (expectedObj.equals(new ComparableObject(act))) {
+                    common.add(expectedObj);
                 }
             }
         }
 
-        for (var o : commonSet) {
-            commonArray.put(o.toJsonObject());
+        final var result = new JSONArray();
+        for (var obj : common) {
+            result.put(obj.toJsonObject());
         }
 
-        return commonArray;
+        return result;
     }
 
     /**
-     * If whole array need to be skipped.
+     * Determines whether a flattened array reference should match the key.
+     * Example:
+     * parentField = "array", key = "array[0].id" => true
      */
-    private static boolean parentFieldIsArray(final String parentField, final String flattenedJsonKey) {
-        final var flattenedArrayFieldRegex = "^\\[\\d+].*$";
+    private static boolean isArrayFieldMatch(final String parent, final String key) {
+        final boolean parentIsNotIndex = !parent.matches("^\\[\\d+].*");
+        final boolean keyStartsWithParent = key.startsWith(parent);
 
-        final boolean wholeArrayProceededButNotArrayElement = !parentField.matches(flattenedArrayFieldRegex);
-        final boolean flattenedKeyShouldBeProceeded = flattenedJsonKey.startsWith(parentField);
-
-        boolean flattenedKeyIsArray = true;
-        if (flattenedKeyShouldBeProceeded) {
-            final var firstPartOfFlattenedKey = flattenedJsonKey.substring(parentField.length());
-            flattenedKeyIsArray = firstPartOfFlattenedKey.matches(flattenedArrayFieldRegex);
+        if (!keyStartsWithParent || !parentIsNotIndex) {
+            return false;
         }
 
-        return wholeArrayProceededButNotArrayElement && flattenedKeyIsArray && flattenedKeyShouldBeProceeded;
+        final var suffix = key.substring(parent.length());
+        return suffix.matches("^\\[\\d+].*");
     }
 }

@@ -18,6 +18,7 @@ public class ComparableObjectTest {
     @Test
     public void testNotEqualsIfPassedInappropriateInstance() {
         assertNotEquals(json, comparableObject);
+        assertNotEquals(comparableObject, json);
     }
 
     @Test
@@ -26,16 +27,18 @@ public class ComparableObjectTest {
     }
 
     @Test
-    public void testCantPassNull() {
-        boolean passed;
-        try {
-            comparableObject.equals(null);
-            comparableObject.equals(null);
-            passed = true;
-        } catch (NullPointerException e) {
-            passed = false;
-            assertEquals(e.getMessage(), "Passed object can't be null");
-        }
-        assertFalse(passed);
+    public void testThrowsIfNullPassedToEquals() {
+        var ex = expectThrows(NullPointerException.class, () -> comparableObject.equals(new ComparableObject(null)));
+        assertEquals(ex.getMessage(), "Passed object can't be null");
+    }
+
+    @Test
+    public void testHashCodeIsConsistent() {
+        assertEquals(new ComparableObject(json).hashCode(), comparableObject.hashCode());
+    }
+
+    @Test
+    public void testToStringMatchesOriginalJson() {
+        assertEquals(comparableObject.toString(), json.toString());
     }
 }

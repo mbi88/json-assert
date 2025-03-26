@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import org.testng.annotations.Test;
 
 import static io.restassured.RestAssured.get;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.expectThrows;
 
 public class JsonAssertArgumentsTest {
 
@@ -117,5 +119,51 @@ public class JsonAssertArgumentsTest {
                 .jsonEquals(j, new JSONArray("""
                         [{"a": 1,"b": 1}, {"a": 2,"b": 1}]"""));
         j.getJSONObject(0).getInt("a");
+    }
+
+    @Test
+    public void testJsonEqualsResponseWithWrongObjectShouldFail() {
+        var wrongObject = new JSONObject().put("some", "value");
+        var ex = expectThrows(AssertionError.class, () -> assertion.jsonEquals(responseObject, wrongObject));
+        assertTrue(ex.getMessage().contains("But found"));
+    }
+
+    @Test
+    public void testJsonEqualsResponseWithWrongArrayShouldFail() {
+        var wrongArray = new JSONArray().put(new JSONObject().put("q", 123));
+        var ex = expectThrows(AssertionError.class, () -> assertion.jsonEquals(responseArray, wrongArray));
+        assertTrue(ex.getMessage().contains("But found"));
+    }
+
+    @Test
+    public void testJsonEqualsArrayWithWrongObjectsShouldFail() {
+        var wrongObjects = new JSONObject[]{
+                new JSONObject().put("x", 1),
+                new JSONObject().put("y", 2)
+        };
+        var ex = expectThrows(AssertionError.class, () -> assertion.jsonEquals(array, wrongObjects));
+        assertTrue(ex.getMessage().contains("But found"));
+    }
+
+    @Test
+    public void testJsonNotEqualsWithDifferentObjectsShouldPass() {
+        assertion.jsonNotEquals(object1, object2);
+    }
+
+    @Test
+    public void testJsonNotEqualsWithSameObjectShouldFail() {
+        var ex = expectThrows(AssertionError.class, () -> assertion.jsonNotEquals(object1, object1));
+        assertTrue(ex.getMessage().contains("Objects are equal!"));
+    }
+
+    @Test
+    public void testJsonEqualsEmptyArrayWithEmptyObjectShouldFail() {
+        var ex = expectThrows(IllegalArgumentException.class, () -> assertion.jsonEquals(new JSONArray(), new JSONObject()));
+        assertTrue(ex.getMessage().contains("You removed all fields from json!"));
+    }
+
+    @Test
+    public void testJsonEqualsEmptyArrayWithEmptyArrayShouldPass() {
+        assertion.jsonEquals(new JSONArray(), new JSONArray());
     }
 }
