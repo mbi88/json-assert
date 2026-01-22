@@ -48,7 +48,7 @@ final class AssertionUtils {
      */
     private static final BiFunction<Set<String>, String, List<String>> CHILD_KEYS = (parentFields, parent) -> {
         final var list = new ArrayList<String>();
-        for (var key : parentFields) {
+        for (final var key : parentFields) {
             final var regex = parent.replace("[", "\\[").replace("]", "\\]") + "\\..*";
             if (key.equalsIgnoreCase(parent) || key.matches(regex)) {
                 list.add(key);
@@ -77,7 +77,7 @@ final class AssertionUtils {
         final var result = new HashSet<String>();
         final int depth = MIN_DOT_DEPTH.apply(children);
 
-        for (var key : children) {
+        for (final var key : children) {
             final var parts = SPLIT_KEYS.apply(key);
             result.add(String.join(FIELD_SEPARATOR, Arrays.copyOf(parts, depth + 1)));
         }
@@ -91,7 +91,7 @@ final class AssertionUtils {
      */
     private static final Function<Set<String>, Set<String>> REDUCE_TO_TOP_LEVEL = keys -> {
         final var result = new HashSet<String>();
-        for (var key : keys) {
+        for (final var key : keys) {
             final var top = SPLIT_KEYS.apply(key)[0];
             result.addAll(TOP_LEVEL_FIELDS.apply(CHILD_KEYS.apply(keys, top)));
         }
@@ -128,7 +128,7 @@ final class AssertionUtils {
         final Set<String> whitelistTop = REDUCE_TO_TOP_LEVEL.apply(whiteList);
         final Set<String> blacklistTop = REDUCE_TO_TOP_LEVEL.apply(blackList);
 
-        for (var key : new HashSet<>(keys)) {
+        for (final var key : new HashSet<>(keys)) {
             if (!whiteList.isEmpty() && !IS_CHILD_FIELD.test(key, whitelistTop)) {
                 flat.remove(key); // remove fields not listed in whiteList
             }
@@ -179,9 +179,9 @@ final class AssertionUtils {
      * @param objects json objects.
      * @return json array.
      */
-    public static JSONArray objectsToArray(JSONObject... objects) {
+    public static JSONArray objectsToArray(final JSONObject... objects) {
         final var array = new JSONArray();
-        for (var obj : objects) {
+        for (final var obj : objects) {
             array.put(obj);
         }
         return array;
@@ -237,9 +237,9 @@ final class AssertionUtils {
         final Set<ComparableObject> common = new LinkedHashSet<>();
 
         // Get a set of expected objects that are common for actual
-        for (var exp : expected) {
+        for (final var exp : expected) {
             final var expectedObj = new ComparableObject(exp);
-            for (var act : actual) {
+            for (final var act : actual) {
                 if (expectedObj.equals(new ComparableObject(act))) {
                     common.add(expectedObj);
                 }
@@ -247,7 +247,7 @@ final class AssertionUtils {
         }
 
         final var result = new JSONArray();
-        for (var obj : common) {
+        for (final var obj : common) {
             result.put(obj.toJsonObject());
         }
 

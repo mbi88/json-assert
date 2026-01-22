@@ -1,16 +1,19 @@
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsReport
+import com.github.spotbugs.snom.SpotBugsTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.kotlin.dsl.withType
 
 plugins {
-    id("ru.vyarus.quality").version("5.0.0")
     id("java-library")
     id("jacoco")
     id("maven-publish")
+    id("code-quality")
+    id("com.github.spotbugs") version "6.4.8"
 }
 
 group = "com.mbi"
 version = "1.0"
-
-val suitesDir = "src/test/resources/suites/"
 
 repositories {
     mavenCentral()
@@ -28,6 +31,7 @@ dependencies {
 tasks.test {
     useTestNG {
         // Automatically include all XML test suite files from suitesDir
+        val suitesDir = "src/test/resources/suites/"
         fileTree(suitesDir).matching { include("*.xml") }.files.forEach { suites(it) }
     }
 
@@ -55,16 +59,32 @@ tasks.withType<Javadoc> {
     (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
 }
 
-quality {
-    // Enable all supported static analysis tools
-    checkstyle = true
-    pmd = true
-    codenarc = true
-    spotbugs = true
+spotbugs {
+    toolVersion.set("4.9.3")
+    effort.set(Effort.MAX)
+    excludeFilter.set(file("config/spotbugs/excludeFilter.xml"))
+}
+
+tasks.withType<SpotBugsTask>().configureEach {
+    val taskName = name
+    val html = reports.maybeCreate("html") as SpotBugsReport
+    html.required.set(true)
+    html.outputLocation.set(layout.buildDirectory.file("reports/spotbugs/$taskName.html"))
+}
+
+tasks {
+    named("checkstyleTest") { enabled = false }
+    named("pmdTest") { enabled = false }
+    named("spotbugsTest") { enabled = false }
 }
 
 tasks.check {
-    dependsOn(tasks.jacocoTestReport)
+    dependsOn(
+        tasks.jacocoTestReport,
+        tasks.checkstyleMain,
+        tasks.pmdMain,
+        tasks.spotbugsMain
+    )
 }
 
 publishing {

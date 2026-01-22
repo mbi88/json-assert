@@ -21,7 +21,7 @@ final class ComparableObject {
      *
      * @param object object to wrap; must not be null.
      */
-    ComparableObject(final Object object) {
+    public ComparableObject(final Object object) {
         Validate.notNull(object, "Passed object can't be null");
         this.object = object;
     }
