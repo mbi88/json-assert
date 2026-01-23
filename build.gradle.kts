@@ -23,7 +23,7 @@ repositories {
 dependencies {
     implementation("org.json:json:20251224")
     implementation("org.skyscreamer:jsonassert:1.5.3")
-    implementation("org.testng:testng:7.11.0")
+    implementation("org.testng:testng:7.12.0")
     implementation("io.rest-assured:rest-assured:6.0.0")
     implementation("com.github.wnameless.json:json-flattener:0.18.0")
 }
