@@ -9,7 +9,7 @@ plugins {
     id("jacoco")
     id("maven-publish")
     id("code-quality")
-    id("com.github.spotbugs") version "6.4.8"
+    id("com.github.spotbugs") version "6.5.0"
 }
 
 group = "com.mbi"
