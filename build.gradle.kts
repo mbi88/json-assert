@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.json:json:20251224")
+    implementation("org.json:json:20260814")
     implementation("org.skyscreamer:jsonassert:1.5.3")
     implementation("org.testng:testng:7.12.0")
     implementation("io.rest-assured:rest-assured:6.0.0")
